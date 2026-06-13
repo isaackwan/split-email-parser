@@ -59,7 +59,7 @@ const currencyPattern = Object.keys(CURRENCY_NAMES)
  *   6 – raw merchant string (up to the first 。)
  */
 const TRANSACTION_REGEX = new RegExp(
-  `閣下信用卡(\\d+)於(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2})(${txTypePattern})([\\d.]+)(${currencyPattern})，交易場所:(.+?)。`
+  `閣下信用卡(\\d+)於(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2})(${txTypePattern})([\\d,.]+)(${currencyPattern})，交易場所:(.+?)。`
 );
 
 // ---------------------------------------------------------------------------
@@ -142,7 +142,7 @@ export function parseTransactionText(text) {
     cardLast4,
     date,
     type,
-    amount: parseFloat(amountStr),
+    amount: parseFloat(amountStr.replace(/,/g, '')),
     currency,
     // Keep the raw merchant string exactly as received.
     // Trimming / normalisation is intentionally deferred here so callers can

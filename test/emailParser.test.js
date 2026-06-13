@@ -125,6 +125,17 @@ describe('parseTransactionText', () => {
     assert.equal(result.amount, 1234.56);
   });
 
+  it('parses amounts with comma thousands separators (e.g. 10,571.97)', () => {
+    const text =
+      '閣下信用卡3498於2026-06-13 07:34成功消費10,571.97港幣，交易場所:AIRBNB * HMH4DQPTSK 128-520-3333 GB。如懷疑電(852) 218 95588【中國工商銀行(亞洲)】';
+
+    const result = parseTransactionText(text);
+
+    assert.equal(result.amount, 10571.97);
+    assert.equal(result.currency, 'HKD');
+    assert.equal(result.merchantRaw, 'AIRBNB * HMH4DQPTSK 128-520-3333 GB');
+  });
+
   it('throws on unrecognisable text', () => {
     assert.throws(
       () => parseTransactionText('This is a completely unrelated email'),
