@@ -45,7 +45,7 @@ test/
 
 wrapper.sh             Shell entry point for cPanel pipe; locates node and execs index.js
 .env.example           All required keys with comments; checked in, .env is git-ignored
-.github/workflows/ci.yml  Matrix: Node 20/22/24 + Bun latest
+.github/workflows/ci.yml  Matrix: Node 20/22/24 + Bun latest + Deno latest
 ```
 
 ---

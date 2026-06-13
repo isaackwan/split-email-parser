@@ -49,3 +49,30 @@ jobs:
 
       - name: Run tests
         run: bun test
+
+  # ---------------------------------------------------------------------------
+  # Deno — latest v2.x release
+  #
+  # Deno doesn't resolve bare npm specifiers (e.g. 'mailparser') via
+  # node_modules the way Node/Bun do. deno.json provides an import map that
+  # redirects them to explicit npm: specifiers; Node and Bun ignore deno.json.
+  # ---------------------------------------------------------------------------
+  test-deno:
+    name: Deno (latest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Run tests
+        # --no-check - mailparser failed to import
+        # --allow-read : fixture files under test/fixtures/
+        # --allow-env  : process.env access in config.js (Deno checks statically)
+        run: deno test --allow-read --allow-env --no-check
