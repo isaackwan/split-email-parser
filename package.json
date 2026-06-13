@@ -1,0 +1,18 @@
+{
+  "name": "icbc-email-parser",
+  "version": "1.0.0",
+  "description": "Parse ICBC Asia credit card notification emails and create Spliit expenses",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test",
+    "test:bun": "bun test"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "mailparser": "^3.7.2"
+  }
+}

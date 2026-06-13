@@ -1,0 +1,79 @@
+Delivered-To: annie@isaackwan.com
+Received: by 2002:a05:6a11:6591:b0:6f2:8f72:9aab with SMTP id vz17csp1283242pxb;
+        Sat, 30 May 2026 19:01:03 -0700 (PDT)
+X-Received: by 2002:a05:7022:126:b0:12d:cbce:5fb7 with SMTP id a92af1059eb24-137d3c10aedmr2231726c88.6.1780192863360;
+        Sat, 30 May 2026 19:01:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780192863; cv=none;
+        d=google.com; s=arc-20240605;
+        b=QpHthXqeQd8mpSMUICNKTdqRksbzmGMl3LZR9LfjbHpJZkwAXLbasVW9D2eA/F7TL2
+         2m0IQ9CcZV4xoGIMBl2XhCiA0zDzXPIAxeEvLJMLZZnhe8m3l+ZiAB3oCEPrD4s7hPpT
+         UvrlhUvV+315xOo6tsdwOf+Q7c/ViGP7Q72QZH0VBqDeaKf58OCZ1h2lj8flNAzYyNu0
+         PCRqmbl7aRyd39x6LcKsfloIYNnjaNyGVXyGwT5S7UhfPtMs2Xzrb7lclsH6HhHzMaXP
+         tNJ05MpTEud8fJ0VusK/Isk5ELwpX4IY79sy3nphwbDpzBYxGMS9B2Vp3nqRHGT2vRS7
+         sk1Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=obcm_appid:mime-version:subject:message-id:to:from:date
+         :dkim-signature;
+        bh=sElj4tAdludUtwDYxdqO1IwX2b+ZcQhZLf3ng6N3Oic=;
+        fh=dT20Tvompy26RxjOx+pUVnPmf8dE3MQeJciRQJkw6xg=;
+        b=eANwR8q1warQ10o8qWq2WcTfyevueGtXLrzldHSyoLrJm5fQh5oyIDZ3AdnA+YK1VI
+         1a5lTL7FWxZvwle1Q0hWXlP7ijcDllNoVZc73AJItwF62n2AENYBdslkrWV7/32rtgEv
+         Us85zlZW1y1B3f9IleVpDy/4NClx6nAFI2ZDRSozLaeZN2HqX7BRNABmHXwzjkT4i3we
+         DtRnti28h3l8QNJsoBj5/vevt+1x501NAjWn3S9SHg32+a7wlsBOuNxqgDpUoCxLwFc8
+         VkAwnyna/qmqb742irB/ohcBwiiQxR9ZMvLUfqPhGoaI4/j6wylmSu9Mnr7OTwqEEiax
+         Rj6A==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@icbcasia.com header.s=icbc header.b=Dc+G+Q43;
+       spf=pass (google.com: domain of enquiry@icbcasia.com designates 180.169.119.220 as permitted sender) smtp.mailfrom=enquiry@icbcasia.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=icbcasia.com
+Return-Path: <enquiry@icbcasia.com>
+Received: from yxym.icbc.com.cn (yxym.icbc.com.cn. [180.169.119.220])
+        by mx.google.com with ESMTP id a92af1059eb24-137b35ad486si15401153c88.24.2026.05.30.19.01.02
+        for <annie@isaackwan.com>;
+        Sat, 30 May 2026 19:01:03 -0700 (PDT)
+Received-SPF: pass (google.com: domain of enquiry@icbcasia.com designates 180.169.119.220 as permitted sender) client-ip=180.169.119.220;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@icbcasia.com header.s=icbc header.b=Dc+G+Q43;
+       spf=pass (google.com: domain of enquiry@icbcasia.com designates 180.169.119.220 as permitted sender) smtp.mailfrom=enquiry@icbcasia.com;
+       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=icbcasia.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=icbcasia.com; s=icbc; h=Date:From:To; bh=sElj4tAdludUtwDYxdqO1
+	IwX2b+ZcQhZLf3ng6N3Oic=; b=Dc+G+Q430N5Wc1/XH7xiRVkCcFUbf2OI5iHo1
+	b5xJAobAB1ES55x0faJyahhhnbTjR7tMreafyF4QwFN4FK9OYB47Dele1Q0XPmKR
+	Mo9aqGav4oTSm9d0G72k/oS5YEmQkMx19aiWgkAiPZfgtaWOrx5ea23Uxv0lj/Vh
+	6Ry+rFpP/0tuNDtMxC/iYZVUy4uMIwecmXmKoVWebyQ5uk4fdmfRjV474GQ3WVvY
+	YEnTndd11G4cT1l9zjpZYVVgqcpljdH7zndd8/yWrYHKnumDa+q3lXuF3Isvs7WN
+	uOkGsUR0B7RnPZOxOO8BwFYgr7A0azSq27yLuZfgkziFAUbFA==
+Received: from umsp-dh-app-jd-01-58cdd7847-n7lxd (unknown [10.207.193.229])
+	by obcm05 (Coremail) with SMTP id AAAAAACHjBhclhtq1C03AA--.28092S2;
+	Sun, 31 May 2026 10:01:00 +0800 (CST)
+Date: Sun, 31 May 2026 10:01:00 +0800 (CST)
+From: =?utf-8?B?5bel5ZWG6ZO26KGM57uf5LiA5raI5oGv5bmz5Y+w?= <enquiry@icbcasia.com>
+To: annie@isaackwan.com
+Message-ID: <1742728858.932.1780192860340.JavaMail.root@umsp-dh-app-jd-01-58cdd7847-n7lxd>
+Subject: =?utf-8?B?5L+h55So5Y2h5pSv6LOs6YCa55+l?=
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_930_1272249133.1780192860332"
+obcm_appid: f-umsp
+
+------=_Part_930_1272249133.1780192860332
+Content-Type: multipart/related; 
+	boundary="----=_Part_931_1189391821.1780192860332"
+
+------=_Part_931_1189391821.1780192860332
+Content-Type: text/html;charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<html><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF=
+-8" /><body>=E9=96=A3=E4=B8=8B=E4=BF=A1=E7=94=A8=E5=8D=A15235=E6=96=BC2026-=
+05-31 10:00=E6=88=90=E5=8A=9F=E9=A0=90=E6=8E=88=E6=AC=8A=E6=94=AF=E5=87=BA0=
+.03=E6=B8=AF=E5=B9=A3=EF=BC=8C=E4=BA=A4=E6=98=93=E5=A0=B4=E6=89=80:MT      =
+       MTR - RideHONGKONG    HKG=E3=80=82=E5=A6=82=E6=87=B7=E7=96=91=E9=9B=
+=BB(852) 218 95588=E3=80=90=E4=B8=AD=E5=9C=8B=E5=B7=A5=E5=95=86=E9=8A=80=E8=
+=A1=8C(=E4=BA=9E=E6=B4=B2)=E3=80=91</body></html>
+------=_Part_931_1189391821.1780192860332--
+
+------=_Part_930_1272249133.1780192860332--
+
