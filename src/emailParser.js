@@ -86,13 +86,13 @@ const PAYME_PATTERNS = [
     type: PAYME_TRANSACTION_TYPES.PRE_AUTH,
     status: 'Pending',
     regex:
-      /You have a pending payment to the business\s+(.+?)\s+via PayMe\s+-\s+([A-Z]{3})\s+([\d,.]+)\s+\(\s+([A-Z]{3})\s+([\d,.]+)\s+\).*?Date and time\s+(\d{2}):(\d{2})\s+(\d{2})\/(\d{2})\/(\d{4})\s+Payment status\s+Pending/s,
+      /You have a pending payment to the business\s+(.+?)\s+via PayMe\s+-\s+([A-Z]{3})\s+([\d,.]+)(?:\s+\(\s+([A-Z]{3})\s+([\d,.]+)\s+\))?.*?Date and time\s+(\d{2}):(\d{2})\s+(\d{2})\/(\d{2})\/(\d{4})\s+Payment status\s+Pending/s,
   },
   {
     type: PAYME_TRANSACTION_TYPES.PURCHASE,
     status: 'SUCCESS',
     regex:
-      /You paid the business\s+(.+?)\s+via PayMe\s+-\s+([A-Z]{3})\s+([\d,.]+)\s+\(\s+([A-Z]{3})\s+([\d,.]+)\s+\).*?Date and time\s+(\d{2}):(\d{2})\s+(\d{2})\/(\d{2})\/(\d{4})\s+Payment status\s+SUCCESS/s,
+      /You paid the business\s+(.+?)\s+via PayMe\s+-\s+([A-Z]{3})\s+([\d,.]+)(?:\s+\(\s+([A-Z]{3})\s+([\d,.]+)\s+\))?.*?Date and time\s+(\d{2}):(\d{2})\s+(\d{2})\/(\d{2})\/(\d{4})\s+Payment status\s+SUCCESS/s,
   },
 ];
 
@@ -237,17 +237,22 @@ function parsePayMeTransactionText(text) {
       year,
     ] = match;
     const merchant = cleanPayMeMerchant(merchantRaw);
+    const amount = parseFloat(amountStr.replace(/,/g, ''));
+    const originalAmount = originalAmountStr
+      ? parseFloat(originalAmountStr.replace(/,/g, ''))
+      : amount;
+    const originalCurrencyCode = originalCurrency || currency;
 
     return {
       channel: CHANNELS.PAYME,
       cardLast4: null,
       date: new Date(`${year}-${month}-${day}T${hour}:${minute}:00+08:00`),
       type,
-      amount: parseFloat(amountStr.replace(/,/g, '')),
+      amount,
       currency,
       merchantRaw: merchant,
-      originalCurrency,
-      originalAmount: parseFloat(originalAmountStr.replace(/,/g, '')),
+      originalCurrency: originalCurrencyCode,
+      originalAmount,
       status,
     };
   }

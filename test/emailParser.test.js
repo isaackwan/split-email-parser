@@ -100,6 +100,19 @@ describe('parseTransactionText', () => {
     assert.equal(result.date.toISOString(), '2026-05-31T02:00:00.000Z');
   });
 
+  it('parses a PayMe PURCHASE without a foreign-currency line as HKD', () => {
+    const text =
+      'You paid the business Example Merchant via PayMe - HKD 12.34. Date and time 09:15 17/06/2026 Payment status SUCCESS';
+
+    const result = parseTransactionText(text);
+
+    assert.equal(result.channel, CHANNELS.PAYME);
+    assert.equal(result.amount, 12.34);
+    assert.equal(result.currency, 'HKD');
+    assert.equal(result.originalCurrency, 'HKD');
+    assert.equal(result.originalAmount, 12.34);
+  });
+
   it('parses a USD transaction', () => {
     const text =
       '閣下信用卡3498於2026-06-10 09:30成功消費19.99美元，交易場所:AMAZON.COM AMZN.COM/BI WA US。如懷疑電(852) 218 95588【中國工商銀行(亞洲)】';
@@ -222,6 +235,21 @@ describe('parseEmail (integration)', () => {
     assert.equal(result.originalCurrency, 'MYR');
     assert.equal(result.merchantRaw, 'LI ER NYONYA-SUSHI Georgetown MY');
     assert.equal(result.date.toISOString(), '2026-04-12T06:13:00.000Z');
+  });
+
+  it('parses the PayMe PRE_AUTH HKD-only fixture end-to-end', async () => {
+    const raw = fixture('payme-preauth2.eml');
+    const result = await parseEmail(raw);
+
+    assert.equal(result.channel, CHANNELS.PAYME);
+    assert.equal(result.cardLast4, null);
+    assert.equal(result.type, PAYME_TRANSACTION_TYPES.PRE_AUTH);
+    assert.equal(result.amount, 32);
+    assert.equal(result.currency, 'HKD');
+    assert.equal(result.originalCurrency, 'HKD');
+    assert.equal(result.originalAmount, 32);
+    assert.equal(result.merchantRaw, 'MARKS & SPENCER CENTRAL HKG');
+    assert.equal(result.date.toISOString(), '2026-06-01T06:49:00.000Z');
   });
 
   it('parses the Wise PURCHASE fixture end-to-end', async () => {
