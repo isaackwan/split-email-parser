@@ -83,6 +83,30 @@ describe('createExpense', () => {
     ]);
   });
 
+  it('deduplicates paidFor participants', async () => {
+    const fetch = captureFetch();
+    await createExpense(
+      {
+        ...BASE_PARAMS,
+        participantIds: [
+          'participant-A',
+          'participant-B',
+          'participant-A',
+          'participant-C',
+          'participant-B',
+        ],
+      },
+      fetch
+    );
+
+    const { paidFor } = fetch.getCaptured().body['0'].json.expenseFormValues;
+    assert.deepEqual(paidFor, [
+      { participant: 'participant-A', shares: 100 },
+      { participant: 'participant-B', shares: 100 },
+      { participant: 'participant-C', shares: 100 },
+    ]);
+  });
+
   it('sets splitMode to EVENLY', async () => {
     const fetch = captureFetch();
     await createExpense(BASE_PARAMS, fetch);

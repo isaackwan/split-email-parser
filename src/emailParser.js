@@ -1,6 +1,16 @@
 import { simpleParser } from 'mailparser';
 
 // ---------------------------------------------------------------------------
+// Channel registry
+// ---------------------------------------------------------------------------
+
+export const CHANNELS = {
+  ICBCA: 'ICBCA',
+  PAYME: 'PayMe',
+  WISE: 'Wise',
+};
+
+// ---------------------------------------------------------------------------
 // Transaction type registry
 // Add new types here; the regex and downstream code adapt automatically.
 // ---------------------------------------------------------------------------
@@ -9,6 +19,15 @@ import { simpleParser } from 'mailparser';
 export const TRANSACTION_TYPES = {
   PURCHASE: '成功消費',
   PRE_AUTH: '成功預授權支出',
+};
+
+export const PAYME_TRANSACTION_TYPES = {
+  PURCHASE: 'Payment',
+  PRE_AUTH: 'Pending payment',
+};
+
+export const WISE_TRANSACTION_TYPES = {
+  PURCHASE: 'Spent',
 };
 
 // ---------------------------------------------------------------------------
@@ -62,6 +81,24 @@ const TRANSACTION_REGEX = new RegExp(
   `閣下信用卡(\\d+)於(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2})(${txTypePattern})([\\d,.]+)(${currencyPattern})，交易場所:(.+?)。`
 );
 
+const PAYME_PATTERNS = [
+  {
+    type: PAYME_TRANSACTION_TYPES.PRE_AUTH,
+    status: 'Pending',
+    regex:
+      /You have a pending payment to the business\s+(.+?)\s+via PayMe\s+-\s+([A-Z]{3})\s+([\d,.]+)\s+\(\s+([A-Z]{3})\s+([\d,.]+)\s+\).*?Date and time\s+(\d{2}):(\d{2})\s+(\d{2})\/(\d{2})\/(\d{4})\s+Payment status\s+Pending/s,
+  },
+  {
+    type: PAYME_TRANSACTION_TYPES.PURCHASE,
+    status: 'SUCCESS',
+    regex:
+      /You paid the business\s+(.+?)\s+via PayMe\s+-\s+([A-Z]{3})\s+([\d,.]+)\s+\(\s+([A-Z]{3})\s+([\d,.]+)\s+\).*?Date and time\s+(\d{2}):(\d{2})\s+(\d{2})\/(\d{2})\/(\d{4})\s+Payment status\s+SUCCESS/s,
+  },
+];
+
+const WISE_SPEND_REGEX =
+  /You spent\s+([\d,.]+)\s+([A-Z]{3})\s+at\s+(.+?)\./;
+
 // ---------------------------------------------------------------------------
 // HTML helpers
 // ---------------------------------------------------------------------------
@@ -74,7 +111,10 @@ const TRANSACTION_REGEX = new RegExp(
  * @returns {string}
  */
 export function stripHtml(html) {
-  return html.replace(/<[^>]+>/g, '');
+  return html
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '');
 }
 
 /**
@@ -107,9 +147,11 @@ export function decodeEntities(str) {
  * without needing a full MIME envelope.
  *
  * @param {string} text  – decoded, tag-stripped body text
+ * @param {{ subject?: string, date?: Date }} [context]
  * @returns {Transaction}
  *
  * @typedef {{
+ *   channel: string,
  *   cardLast4: string,
  *   date: Date,
  *   type: string,
@@ -118,12 +160,33 @@ export function decodeEntities(str) {
  *   merchantRaw: string
  * }} Transaction
  */
-export function parseTransactionText(text) {
+export function parseTransactionText(text, context = {}) {
+  const normalisedText = text.replace(/\s+/g, ' ').trim();
+
+  const payme = parsePayMeTransactionText(normalisedText);
+  if (payme) {
+    return payme;
+  }
+
+  const wise = parseWiseTransactionText(normalisedText, context);
+  if (wise) {
+    return wise;
+  }
+
+  const icbca = parseIcbcaTransactionText(text);
+  if (icbca) {
+    return icbca;
+  }
+
+  throw new Error(
+    `Could not parse transaction from email body. Snippet: "${text.slice(0, 300)}"`
+  );
+}
+
+function parseIcbcaTransactionText(text) {
   const match = text.match(TRANSACTION_REGEX);
   if (!match) {
-    throw new Error(
-      `Could not parse transaction from email body. Snippet: "${text.slice(0, 300)}"`
-    );
+    return null;
   }
 
   const [, cardLast4, dateStr, type, amountStr, currencyName, merchantRaw] = match;
@@ -139,6 +202,7 @@ export function parseTransactionText(text) {
   const date = new Date(`${dateStr.replace(' ', 'T')}:00+08:00`);
 
   return {
+    channel: CHANNELS.ICBCA,
     cardLast4,
     date,
     type,
@@ -147,6 +211,119 @@ export function parseTransactionText(text) {
     // Keep the raw merchant string exactly as received.
     // Trimming / normalisation is intentionally deferred here so callers can
     // decide how to handle padding.  See wrapper.sh notes.
+    merchantRaw: merchantRaw.trim(),
+  };
+}
+
+function parsePayMeTransactionText(text) {
+  for (const { regex, type, status } of PAYME_PATTERNS) {
+    const matches = [...text.matchAll(new RegExp(regex.source, 'gs'))];
+    const match = matches.at(-1);
+    if (!match) {
+      continue;
+    }
+
+    const [
+      ,
+      merchantRaw,
+      currency,
+      amountStr,
+      originalCurrency,
+      originalAmountStr,
+      hour,
+      minute,
+      day,
+      month,
+      year,
+    ] = match;
+    const merchant = cleanPayMeMerchant(merchantRaw);
+
+    return {
+      channel: CHANNELS.PAYME,
+      cardLast4: null,
+      date: new Date(`${year}-${month}-${day}T${hour}:${minute}:00+08:00`),
+      type,
+      amount: parseFloat(amountStr.replace(/,/g, '')),
+      currency,
+      merchantRaw: merchant,
+      originalCurrency,
+      originalAmount: parseFloat(originalAmountStr.replace(/,/g, '')),
+      status,
+    };
+  }
+
+  return null;
+}
+
+function cleanPayMeMerchant(merchantRaw) {
+  const markers = [
+    'You have a pending payment to the business',
+    'You paid the business',
+  ];
+  let merchant = merchantRaw.replace(/(?:&zwnj;\s*)+/g, ' ').trim();
+
+  for (const marker of markers) {
+    if (merchant.includes(marker)) {
+      merchant = merchant.split(marker).at(-1).trim();
+    }
+  }
+
+  return merchant;
+}
+
+function parseWiseTransactionText(text, { subject, date, receivedDate } = {}) {
+  const source = text;
+  const match = source.match(WISE_SPEND_REGEX);
+  if (!match) {
+    if (subject) {
+      const subjectMatch = subject.match(/^([\d,.]+)\s+([A-Z]{3})\s+spent at\s+(.+)$/);
+      if (!subjectMatch) {
+        return null;
+      }
+
+      const [, amountStr, currency, merchantRaw] = subjectMatch;
+      const transactionDate =
+        receivedDate instanceof Date && !isNaN(receivedDate.getTime())
+          ? receivedDate
+          : date instanceof Date && !isNaN(date.getTime())
+            ? date
+            : null;
+      if (!transactionDate) {
+        return null;
+      }
+
+      return {
+        channel: CHANNELS.WISE,
+        cardLast4: null,
+        date: transactionDate,
+        type: WISE_TRANSACTION_TYPES.PURCHASE,
+        amount: parseFloat(amountStr.replace(/,/g, '')),
+        currency,
+        merchantRaw: merchantRaw.trim(),
+      };
+    }
+
+    return null;
+  }
+
+  const [, amountStr, currency, merchantRaw] = match;
+  const transactionDate =
+    receivedDate instanceof Date && !isNaN(receivedDate.getTime())
+      ? receivedDate
+      : date instanceof Date && !isNaN(date.getTime())
+        ? date
+        : null;
+  if (!transactionDate || isNaN(transactionDate.getTime())) {
+    return null;
+  }
+
+  return {
+    channel: CHANNELS.WISE,
+    cardLast4: null,
+    date: transactionDate,
+    type: WISE_TRANSACTION_TYPES.PURCHASE,
+    amount: parseFloat(amountStr.replace(/,/g, '')),
+    currency,
     merchantRaw: merchantRaw.trim(),
   };
 }
@@ -161,7 +338,7 @@ export function parseTransactionText(text) {
 export async function parseEmail(rawEmail) {
   const mail = await simpleParser(rawEmail);
 
-  // Prefer the HTML part (always present in these ICBC emails); fall back to
+  // Prefer the HTML part (always present in these emails); fall back to
   // the plain-text part if somehow the HTML is absent.
   const source = mail.html || mail.text || '';
   if (!source) {
@@ -169,5 +346,26 @@ export async function parseEmail(rawEmail) {
   }
 
   const text = decodeEntities(stripHtml(source));
-  return parseTransactionText(text);
+  const receivedDate = getLastReceivedDate(rawEmail);
+  return parseTransactionText(text, {
+    subject: mail.subject,
+    date: mail.date,
+    receivedDate,
+  });
+}
+
+function getLastReceivedDate(rawEmail) {
+  const receivedLines = rawEmail.match(/^Received:.*$/gim) || [];
+  if (!receivedLines.length) {
+    return null;
+  }
+
+  const lastLine = receivedLines.at(-1);
+  const timestampPart = lastLine?.split(';').at(-1)?.trim();
+  if (!timestampPart) {
+    return null;
+  }
+
+  const parsed = new Date(timestampPart);
+  return isNaN(parsed.getTime()) ? null : parsed;
 }

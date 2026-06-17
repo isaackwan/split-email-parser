@@ -7,7 +7,7 @@ Guidance for AI coding agents working on this repository.
 ## What this project does
 
 A short-lived Node.js process (not a server) is invoked by cPanel's email pipe
-whenever ICBC Asia sends a credit card notification email. It reads the raw email
+whenever a supported channel sends a transaction notification email. It reads the raw email
 from stdin, extracts the transaction, converts the amount to CAD, creates an
 expense in Spliit, and sends a Telegram notification. On any failure it logs
 locally and sends a Telegram error alert before exiting 1.
@@ -40,8 +40,8 @@ test/
   spliit.test.js            11 tests
   telegram.test.js          21 tests
   fixtures/
-    sample-purchase.txt     Real ICBC "成功消費" email (quoted-printable HTML, UTF-8)
-    sample-preauth.txt      Real ICBC "成功預授權支出" email
+    icbca-purchase.eml      Real ICBCA "成功消費" email (quoted-printable HTML, UTF-8)
+    icbca-preauth.eml       Real ICBCA "成功預授權支出" email
 
 wrapper.sh             Shell entry point for cPanel pipe; locates node and execs index.js
 .env.example           All required keys with comments; checked in, .env is git-ignored
@@ -53,13 +53,17 @@ wrapper.sh             Shell entry point for cPanel pipe; locates node and execs
 ## Running tests
 
 ```bash
-node --test          # Node.js (≥ 20)
-bun test             # Bun
+deno test --allow-read --no-check   # Local Linux default
+node --test                         # Production/server runtime, Node.js ≥ 20
+bun test                            # Local Windows default
 ```
 
-All 61 tests must pass before committing. There are no test helpers or shared
-fixtures beyond the two email files in `test/fixtures/`. Do not add a test
-framework — the project uses Node's built-in `node:test` + `node:assert/strict`.
+Try all available runtimes before committing. Local Linux usually has Deno,
+production/cPanel runs Node.js, and local Windows usually has Bun; CI exercises
+Node 20/22/24, Bun latest, and Deno latest. All tests must pass before
+committing. There are no test helpers or shared fixtures beyond the email
+files in `test/fixtures/`. Do not add a test framework — the project uses
+`node:test` + `node:assert/strict`, which Deno and Bun also run.
 
 ---
 
@@ -127,7 +131,7 @@ round to 1 cent minimum — that is correct behaviour.
 
 ### 8. Dates are always HKT-aware
 
-ICBC emails contain local Hong Kong time with no timezone suffix. The parser
+ICBCA emails contain local Hong Kong time with no timezone suffix. The parser
 appends `+08:00` before constructing a `Date` object. All downstream code uses
 the resulting UTC-correct `Date` — never re-parse the string.
 

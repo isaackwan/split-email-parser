@@ -6,7 +6,7 @@ import {
   formatErrorMessage,
   escapeHtml,
 } from '../src/telegram.js';
-import { TRANSACTION_TYPES } from '../src/emailParser.js';
+import { TRANSACTION_TYPES, CHANNELS } from '../src/emailParser.js';
 
 // ---------------------------------------------------------------------------
 // escapeHtml
@@ -31,6 +31,7 @@ describe('formatSuccessMessage', () => {
     cardLast4: '3498',
     date: new Date('2026-06-01T08:19:00.000Z'), // 16:19 HKT
     type: TRANSACTION_TYPES.PURCHASE,
+    channel: CHANNELS.ICBCA,
     amount: 2.3,
     currency: 'HKD',
     merchantRaw: 'HONG KONG TRAMWAY',
@@ -65,6 +66,18 @@ describe('formatSuccessMessage', () => {
   it('shows the card last-4 digits', () => {
     const msg = formatSuccessMessage(baseTransaction, 0.4, 0.1756);
     assert.ok(msg.includes('3498'));
+  });
+
+  it('shows the channel', () => {
+    const msg = formatSuccessMessage(baseTransaction, 0.4, 0.1756);
+    assert.ok(msg.includes('Channel ICBCA'));
+  });
+
+  it('omits card details when the transaction has no card', () => {
+    const tx = { ...baseTransaction, cardLast4: null, channel: CHANNELS.PAYME };
+    const msg = formatSuccessMessage(tx, 0.4, 0.1756);
+    assert.ok(msg.includes('Channel PayMe'));
+    assert.ok(!msg.includes('Card ****'));
   });
 
   it('escapes HTML in the merchant name', () => {

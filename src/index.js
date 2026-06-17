@@ -56,12 +56,13 @@ async function main() {
     // 3. Build a rich notes string for the Spliit expense
     const notes = [
       'Auto-imported from email',
-      `Card ****${tx.cardLast4}`,
+      `Channel ${tx.channel}`,
+      tx.cardLast4 ? `Card ****${tx.cardLast4}` : null,
       tx.currency !== 'CAD'
         ? `${tx.currency} ${tx.amount.toFixed(2)} @ ${rate.toFixed(4)} → CAD ${cadAmount.toFixed(2)}`
         : `CAD ${cadAmount.toFixed(2)}`,
       tx.type,
-    ].join(' | ');
+    ].filter(Boolean).join(' | ');
 
     // 4. Create the Spliit expense
     await createExpense({
@@ -80,6 +81,7 @@ async function main() {
       original: `${tx.currency} ${tx.amount}`,
       cad: cadAmount.toFixed(2),
       rate,
+      channel: tx.channel,
       card: tx.cardLast4,
       type: tx.type,
     });

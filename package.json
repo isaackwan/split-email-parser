@@ -1,7 +1,7 @@
 {
-  "name": "icbc-email-parser",
+  "name": "spliit-email-importer",
   "version": "1.0.0",
-  "description": "Parse ICBC Asia credit card notification emails and create Spliit expenses",
+  "description": "Parse transaction notification emails and create Spliit expenses",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"

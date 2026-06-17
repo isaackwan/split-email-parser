@@ -39,6 +39,8 @@ export async function createExpense(params, fetchFn = globalThis.fetch) {
   // Spliit stores amounts as integer cents
   const amountCents = Math.round(cadAmount * 100);
 
+  const uniqueParticipantIds = [...new Set(participantIds)];
+
   const body = {
     '0': {
       json: {
@@ -50,7 +52,10 @@ export async function createExpense(params, fetchFn = globalThis.fetch) {
           amount: amountCents,
           conversionRate: null,
           paidBy: paidById,
-          paidFor: participantIds.map((id) => ({ participant: id, shares: 100 })),
+          paidFor: uniqueParticipantIds.map((id) => ({
+            participant: id,
+            shares: 100,
+          })),
           splitMode: 'EVENLY',
           saveDefaultSplittingOptions: false,
           isReimbursement: false,

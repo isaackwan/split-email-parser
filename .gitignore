@@ -3,3 +3,5 @@ node_modules
 *.log
 do-not-exist.js
 tmp/
+deno.lock
+bun.lock

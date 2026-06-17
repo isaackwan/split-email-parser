@@ -1,15 +1,15 @@
-# icbc-email-parser
+# spliit-email-importer
 
-Parses ICBC Asia credit card notification emails piped from cPanel, converts the
-transaction amount to CAD, creates an expense in [Spliit](https://spliit.app), and
-sends a Telegram notification.
+Parses transaction notification emails piped from cPanel, converts the
+transaction amount to CAD, creates an expense in [Spliit](https://spliit.app),
+and sends a Telegram notification.
 
 ```
-ICBC email → cPanel pipe → wrapper.sh → node src/index.js
-                                              ├── emailParser   (MIME + regex)
-                                              ├── currencyConverter (frankfurter.app)
-                                              ├── spliit        (tRPC API)
-                                              └── telegram      (Bot API)
+transaction email → cPanel pipe → wrapper.sh → node src/index.js
+                                                   ├── emailParser   (MIME + channel parsers)
+                                                   ├── currencyConverter (frankfurter.app)
+                                                   ├── spliit        (tRPC API)
+                                                   └── telegram      (Bot API)
 ```
 
 ---
@@ -29,8 +29,8 @@ ICBC email → cPanel pipe → wrapper.sh → node src/index.js
 
 ```bash
 # 1. Clone to your home directory on the server (via SSH or Git in cPanel)
-git clone https://github.com/you/icbc-email-parser.git ~/icbc-email-parser
-cd ~/icbc-email-parser
+git clone https://github.com/you/spliit-email-importer.git ~/spliit-email-importer
+cd ~/spliit-email-importer
 
 # 2. Install dependencies
 npm ci --omit=dev
@@ -44,7 +44,7 @@ chmod +x wrapper.sh
 
 # 5. Create the log file location
 mkdir -p ~/logs
-touch ~/logs/icbc-parser.log
+touch ~/logs/spliit-email-importer.log
 ```
 
 ---
@@ -58,7 +58,7 @@ touch ~/logs/icbc-parser.log
 | `SPLIIT_PARTICIPANT_IDS` | Comma-separated list of **all** participant IDs (including yours) |
 | `TELEGRAM_BOT_TOKEN` | Token from [@BotFather](https://t.me/botfather) |
 | `TELEGRAM_CHAT_ID` | Your user/chat ID — get it from [@userinfobot](https://t.me/userinfobot) |
-| `LOG_FILE` | Absolute path for the NDJSON fallback log, e.g. `/home/user/logs/icbc-parser.log` |
+| `LOG_FILE` | Absolute path for the NDJSON fallback log, e.g. `/home/user/logs/spliit-email-importer.log` |
 
 ### Finding your Spliit participant IDs
 
@@ -73,11 +73,11 @@ touch ~/logs/icbc-parser.log
 ## cPanel email pipe setup
 
 1. Log in to cPanel → **Email Accounts**
-2. Select the address that receives ICBC notifications → **Manage**
+2. Select the address that receives transaction notifications → **Manage**
 3. Go to **Email Filters** → **Add Filter**
-4. Set the rule so it matches the ICBC sender (e.g. `From` contains `icbcasia.com`)
+4. Set the rule so it matches supported senders (for example, ICBCA uses `From` containing `icbcasia.com`)
 5. Set the action to **Pipe to a Program**
-6. Enter the absolute path: `/home/yourusername/icbc-email-parser/wrapper.sh`
+6. Enter the absolute path: `/home/yourusername/spliit-email-importer/wrapper.sh`
 
 > **Node.js location**: `wrapper.sh` auto-detects node at common cPanel paths.
 > If it fails, edit the `NODE_BIN` loop at the top of `wrapper.sh` and add your
@@ -89,7 +89,7 @@ touch ~/logs/icbc-parser.log
 
 ```bash
 # Smoke-test with a real fixture email
-cat test/fixtures/sample-purchase.txt | node src/index.js
+cat test/fixtures/icbca-purchase.eml | node src/index.js
 ```
 
 ---
@@ -144,9 +144,9 @@ matching is enforced by the regex builder). The currency converter uses
 
 ## Log format
 
-Each entry is one line of NDJSON:
+Each entry is one line of NDJSON and includes the parser channel on successful imports:
 
 ```json
-{"ts":"2026-06-01T08:19:00.000Z","level":"info","message":"Expense created","merchant":"HONG KONG TRAMWAY95800","original":"HKD 2.3","cad":"0.40","rate":0.1756,"card":"3498","type":"成功消費"}
+{"ts":"2026-06-01T08:19:00.000Z","level":"info","message":"Expense created","merchant":"HONG KONG TRAMWAY95800","original":"HKD 2.3","cad":"0.40","rate":0.1756,"channel":"ICBCA","card":"3498","type":"成功消費"}
 {"ts":"2026-06-01T08:20:00.000Z","level":"error","message":"Spliit API error: HTTP 500 ...","stack":"..."}
 ```

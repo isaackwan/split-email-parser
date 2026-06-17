@@ -10,7 +10,10 @@ import {
   parseTransactionText,
   parseEmail,
   TRANSACTION_TYPES,
+  PAYME_TRANSACTION_TYPES,
+  WISE_TRANSACTION_TYPES,
   CURRENCY_NAMES,
+  CHANNELS,
 } from '../src/emailParser.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -70,6 +73,7 @@ describe('parseTransactionText', () => {
 
     const result = parseTransactionText(text);
 
+    assert.equal(result.channel, CHANNELS.ICBCA);
     assert.equal(result.cardLast4, '3498');
     assert.equal(result.type, TRANSACTION_TYPES.PURCHASE);
     assert.equal(result.amount, 2.3);
@@ -87,6 +91,7 @@ describe('parseTransactionText', () => {
 
     const result = parseTransactionText(text);
 
+    assert.equal(result.channel, CHANNELS.ICBCA);
     assert.equal(result.cardLast4, '5235');
     assert.equal(result.type, TRANSACTION_TYPES.PRE_AUTH);
     assert.equal(result.amount, 0.03);
@@ -163,10 +168,11 @@ describe('CURRENCY_NAMES registry', () => {
 // parseEmail — integration tests using real MIME fixture files
 // ---------------------------------------------------------------------------
 describe('parseEmail (integration)', () => {
-  it('parses the sample PURCHASE fixture end-to-end', async () => {
-    const raw = fixture('sample-purchase.txt');
+  it('parses the ICBCA PURCHASE fixture end-to-end', async () => {
+    const raw = fixture('icbca-purchase.eml');
     const result = await parseEmail(raw);
 
+    assert.equal(result.channel, CHANNELS.ICBCA);
     assert.equal(result.cardLast4, '3498');
     assert.equal(result.type, TRANSACTION_TYPES.PURCHASE);
     assert.equal(result.amount, 2.3);
@@ -175,15 +181,72 @@ describe('parseEmail (integration)', () => {
     assert.equal(result.date.toISOString(), '2026-06-01T08:19:00.000Z');
   });
 
-  it('parses the sample PRE_AUTH fixture end-to-end', async () => {
-    const raw = fixture('sample-preauth.txt');
+  it('parses the ICBCA PRE_AUTH fixture end-to-end', async () => {
+    const raw = fixture('icbca-preauth.eml');
     const result = await parseEmail(raw);
 
+    assert.equal(result.channel, CHANNELS.ICBCA);
     assert.equal(result.cardLast4, '5235');
     assert.equal(result.type, TRANSACTION_TYPES.PRE_AUTH);
     assert.equal(result.amount, 0.03);
     assert.equal(result.currency, 'HKD');
     assert.ok(result.merchantRaw.includes('MTR'));
     assert.equal(result.date.toISOString(), '2026-05-31T02:00:00.000Z');
+  });
+
+  it('parses the PayMe PURCHASE fixture end-to-end', async () => {
+    const raw = fixture('payme-purchase.eml');
+    const result = await parseEmail(raw);
+
+    assert.equal(result.channel, CHANNELS.PAYME);
+    assert.equal(result.cardLast4, null);
+    assert.equal(result.type, PAYME_TRANSACTION_TYPES.PURCHASE);
+    assert.equal(result.amount, 31.64);
+    assert.equal(result.currency, 'HKD');
+    assert.equal(result.originalAmount, 15.9);
+    assert.equal(result.originalCurrency, 'MYR');
+    assert.equal(result.merchantRaw, 'Four Beans Ventures Sdn BIpoh MYS');
+    assert.equal(result.date.toISOString(), '2026-03-27T13:06:00.000Z');
+  });
+
+  it('parses the PayMe PRE_AUTH fixture end-to-end', async () => {
+    const raw = fixture('payme-preauth.eml');
+    const result = await parseEmail(raw);
+
+    assert.equal(result.channel, CHANNELS.PAYME);
+    assert.equal(result.cardLast4, null);
+    assert.equal(result.type, PAYME_TRANSACTION_TYPES.PRE_AUTH);
+    assert.equal(result.amount, 78.39);
+    assert.equal(result.currency, 'HKD');
+    assert.equal(result.originalAmount, 39);
+    assert.equal(result.originalCurrency, 'MYR');
+    assert.equal(result.merchantRaw, 'LI ER NYONYA-SUSHI Georgetown MY');
+    assert.equal(result.date.toISOString(), '2026-04-12T06:13:00.000Z');
+  });
+
+  it('parses the Wise PURCHASE fixture end-to-end', async () => {
+    const raw = fixture('wise-purchase.eml');
+    const result = await parseEmail(raw);
+
+    assert.equal(result.channel, CHANNELS.WISE);
+    assert.equal(result.cardLast4, null);
+    assert.equal(result.type, WISE_TRANSACTION_TYPES.PURCHASE);
+    assert.equal(result.amount, 69.56);
+    assert.equal(result.currency, 'HKD');
+    assert.equal(result.merchantRaw, 'iHerb');
+    assert.equal(result.date.toISOString(), '2026-04-11T12:04:56.000Z');
+  });
+
+  it('parses the Wise PURCHASE fixture with the transaction currency and amount', async () => {
+    const raw = fixture('wise-purchase2.eml');
+    const result = await parseEmail(raw);
+
+    assert.equal(result.channel, CHANNELS.WISE);
+    assert.equal(result.cardLast4, null);
+    assert.equal(result.type, WISE_TRANSACTION_TYPES.PURCHASE);
+    assert.equal(result.amount, 30);
+    assert.equal(result.currency, 'AUD');
+    assert.equal(result.merchantRaw, 'OpenAI - ChatGPT Subscription');
+    assert.equal(result.date.toISOString(), '2026-06-17T10:33:06.000Z');
   });
 });

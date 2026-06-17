@@ -69,10 +69,11 @@ export function formatSuccessMessage(tx, cadAmount, rate) {
     '',
     `📍 ${escapeHtml(tx.merchantRaw)}`,
     `💰 ${originalAmountStr} → ${cadStr}${rateNote}`,
-    `🃏 Card ****${tx.cardLast4}`,
+    `📨 Channel ${escapeHtml(tx.channel)}`,
+    tx.cardLast4 ? `🃏 Card ****${tx.cardLast4}` : null,
     `📅 ${dateHKT} HKT`,
     `🏷 ${tx.type}`,
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 /**
