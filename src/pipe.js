@@ -2,7 +2,7 @@
  * Entry point — invoked by wrapper.sh when cPanel pipes an email to this script.
  *
  * Flow:
- *   stdin → parseEmail → convertToCAD → createExpense → Telegram success
+ *   stdin → parseEmail → processTransaction → Telegram success
  *
  * On any failure:
  *   → log to file → Telegram error alert → exit 1
@@ -13,10 +13,9 @@
 
 import { loadConfig } from './config.js';
 import { parseEmail } from './emailParser.js';
-import { convertToCAD } from './currencyConverter.js';
-import { createExpense } from './spliit.js';
-import { sendTelegram, formatSuccessMessage, formatErrorMessage } from './telegram.js';
+import { sendTelegram, formatErrorMessage } from './telegram.js';
 import { log } from './logger.js';
+import { processTransaction } from './transactionProcessor.js';
 
 // ---------------------------------------------------------------------------
 // Validate config at startup — crashes with a clear message if .env is wrong
@@ -50,48 +49,8 @@ async function main() {
     // 1. Parse the MIME email into a structured transaction
     const tx = await parseEmail(rawEmail);
 
-    // 2. Convert original currency → CAD
-    const { cadAmount, rate } = await convertToCAD(tx.amount, tx.currency);
-
-    // 3. Build a rich notes string for the Spliit expense
-    const notes = [
-      'Auto-imported from email',
-      `Channel ${tx.channel}`,
-      tx.cardLast4 ? `Card ****${tx.cardLast4}` : null,
-      tx.currency !== 'CAD'
-        ? `${tx.currency} ${tx.amount.toFixed(2)} @ ${rate.toFixed(4)} → CAD ${cadAmount.toFixed(2)}`
-        : `CAD ${cadAmount.toFixed(2)}`,
-      tx.type,
-    ].filter(Boolean).join(' | ');
-
-    // 4. Create the Spliit expense
-    await createExpense({
-      groupId: cfg.spliit.groupId,
-      paidById: cfg.spliit.paidById,
-      participantIds: cfg.spliit.participantIds,
-      title: tx.merchantRaw,
-      cadAmount,
-      expenseDate: tx.date,
-      notes,
-    });
-
-    // 5. Write a success log entry
-    await log(cfg.logFile, 'info', 'Expense created', {
-      merchant: tx.merchantRaw,
-      original: `${tx.currency} ${tx.amount}`,
-      cad: cadAmount.toFixed(2),
-      rate,
-      channel: tx.channel,
-      card: tx.cardLast4,
-      type: tx.type,
-    });
-
-    // 6. Telegram success notification
-    await sendTelegram(
-      cfg.telegram.botToken,
-      cfg.telegram.chatId,
-      formatSuccessMessage(tx, cadAmount, rate)
-    );
+    // 2. Convert, create the Spliit expense, log, and notify Telegram
+    await processTransaction(tx, cfg, { sourceLabel: 'email' });
   } catch (err) {
     // -----------------------------------------------------------------------
     // Error path: log locally, then attempt Telegram alert

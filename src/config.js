@@ -22,7 +22,7 @@ export const REQUIRED_VARS = {
 
 /**
  * Loads and validates environment variables.
- * Call once at startup in index.js — not imported by any other module,
+ * Call once at startup in the entrypoint — not imported by any other module,
  * so unit tests can import individual modules without triggering this.
  *
  * @throws {Error} if any required variable is absent

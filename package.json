@@ -7,12 +7,15 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node src/pipe.js",
+    "start:web": "node src/web.js",
     "test": "node --test",
     "test:bun": "bun test"
   },
   "dependencies": {
+    "@hono/node-server": "^1.19.14",
     "dotenv": "^16.4.7",
+    "hono": "^4.12.27",
     "mailparser": "^3.7.2"
   }
 }

@@ -5,7 +5,7 @@ transaction amount to CAD, creates an expense in [Spliit](https://spliit.app),
 and sends a Telegram notification.
 
 ```
-transaction email → cPanel pipe → wrapper.sh → node src/index.js
+transaction email → cPanel pipe → wrapper.sh → node src/pipe.js
                                                    ├── emailParser   (MIME + channel parsers)
                                                    ├── currencyConverter (frankfurter.app)
                                                    ├── spliit        (tRPC API)
@@ -89,7 +89,7 @@ touch ~/logs/spliit-email-importer.log
 
 ```bash
 # Smoke-test with a real fixture email
-cat test/fixtures/icbca-purchase.eml | node src/index.js
+cat test/fixtures/icbca-purchase.eml | node src/pipe.js
 ```
 
 ---

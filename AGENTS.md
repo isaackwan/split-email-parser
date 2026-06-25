@@ -6,18 +6,29 @@ Guidance for AI coding agents working on this repository.
 
 ## What this project does
 
-A short-lived Node.js process (not a server) is invoked by cPanel's email pipe
-whenever a supported channel sends a transaction notification email. It reads the raw email
-from stdin, extracts the transaction, converts the amount to CAD, creates an
-expense in Spliit, and sends a Telegram notification. On any failure it logs
-locally and sends a Telegram error alert before exiting 1.
+This project imports transaction notifications into Spliit. It has two
+entrypoints:
+
+- `src/pipe.js`: a short-lived Node.js process invoked by cPanel's email pipe.
+  It reads a raw MIME email from stdin and exits after handling it.
+- `src/web.js`: a long-lived Hono Node server that accepts Google Wallet
+  notification JSON over `POST /`.
+
+Both entrypoints extract a `Transaction`, pass it through shared core logic,
+convert the amount to CAD, create an expense in Spliit, and send a Telegram
+notification. On failures they log locally and send a Telegram error alert.
 
 ```
 stdin (raw MIME email)
   └─ parseEmail()          src/emailParser.js
-       └─ convertToCAD()   src/currencyConverter.js  →  frankfurter.app
-            └─ createExpense()  src/spliit.js         →  spliit.app tRPC API
-                 └─ sendTelegram()  src/telegram.js   →  api.telegram.org
+       └─ processTransaction() src/transactionProcessor.js
+            └─ convertToCAD()   src/currencyConverter.js  →  frankfurter.app
+                 └─ createExpense()  src/spliit.js         →  spliit.app tRPC API
+                      └─ sendTelegram()  src/telegram.js   →  api.telegram.org
+
+POST / (Google Wallet notification JSON)
+  └─ parseGoogleWalletNotification() src/googleWalletParser.js
+       └─ processTransaction()       src/transactionProcessor.js
 ```
 
 ---
@@ -26,16 +37,22 @@ stdin (raw MIME email)
 
 ```
 src/
-  index.js             Orchestration only — reads stdin, calls the others in order
-  config.js            Env var loading and validation; import here only from index.js
+  pipe.js              Orchestration only — reads stdin, calls the others in order
+  web.js               Hono Node server entrypoint for Google Wallet POSTs
+  webApp.js            Hono app factory; accepts injected config/fetch/logger
+  transactionProcessor.js Shared convert/create/log/Telegram success flow
+  config.js            Env var loading and validation; import only from entrypoints
   emailParser.js       MIME parsing + regex extraction; all Chinese-text logic lives here
+  googleWalletParser.js Google Wallet notification parser + currency-symbol registry
   currencyConverter.js Single function: convertToCAD(amount, currency, fetchFn?)
   spliit.js            Single function: createExpense(params, fetchFn?)
   telegram.js          sendTelegram() + pure formatter functions (no I/O)
   logger.js            NDJSON append-to-file; swallows its own errors by design
 
 test/
-  emailParser.test.js       22 tests — unit (inline strings) + integration (MIME fixtures)
+  emailParser.test.js       Unit (inline strings) + integration (MIME fixtures)
+  googleWalletParser.test.js Google Wallet notification parser tests
+  webApp.test.js            Hono route behavior with injected dependencies
   currencyConverter.test.js  7 tests
   spliit.test.js            11 tests
   telegram.test.js          21 tests
@@ -43,7 +60,7 @@ test/
     icbca-purchase.eml      Real ICBCA "成功消費" email (quoted-printable HTML, UTF-8)
     icbca-preauth.eml       Real ICBCA "成功預授權支出" email
 
-wrapper.sh             Shell entry point for cPanel pipe; locates node and execs index.js
+wrapper.sh             Shell entry point for cPanel pipe; locates node and execs pipe.js
 .env.example           All required keys with comments; checked in, .env is git-ignored
 .github/workflows/ci.yml  Matrix: Node 20/22/24 + Bun latest + Deno latest
 ```
@@ -102,7 +119,7 @@ whitespace padding. The only normalisation applied is a single `.trim()` call to
 remove leading/trailing whitespace. Do not collapse internal spaces or strip
 country codes — that's a future caller concern. If merchant normalisation is
 added later, it belongs in a dedicated `normaliseMerchant(raw)` function in
-`emailParser.js`, called from `index.js` before `createExpense`.
+`emailParser.js`, called from `pipe.js` before `createExpense`.
 
 ### 4. Transaction types are treated uniformly
 
@@ -111,29 +128,56 @@ preserved on the `Transaction` object and written to both the Spliit notes and
 the log, so a future caller can branch on it. Do not add `if (type === PRE_AUTH)
 skip` logic without a product decision.
 
-### 5. Config is validated once at process startup
+### 5. Shared transaction processing belongs in `transactionProcessor.js`
 
-`loadConfig()` is called at the top level of `index.js` before `main()`. It hard
-crashes with a human-readable message listing every missing variable. No other
-module imports `config.js` — this keeps unit tests free of dotenv side effects.
+`pipe.js` and `webApp.js` both create the same kind of `Transaction` object and
+then call `processTransaction()`. Keep conversion, Spliit expense creation,
+success logging, and Telegram success notifications in that shared module so
+new input channels do not duplicate downstream behavior.
 
-### 6. The logger never throws
+### 6. Config is validated once at process startup
+
+`loadConfig()` is called at the top level of `pipe.js` and `web.js` before the
+entrypoint starts handling input. It hard crashes with a human-readable message
+listing every missing variable. Shared modules should accept config as an
+argument instead of importing `config.js`; this keeps unit tests free of dotenv
+side effects and leaves `webApp.js` portable to Cloudflare Workers via `c.env`.
+
+### 7. The logger never throws
 
 `logger.js` wraps `appendFile` in try/catch and falls back to stderr. It is used
 inside both the success path and the error-handling path; if it threw, it could
 suppress the original error.
 
-### 7. Spliit amount is integer cents
+For future serverless Worker entrypoints, inject a console-style structured
+logger when `LOG_FILE` is unavailable. Do not make Worker-compatible code depend
+on filesystem writes.
+
+### 8. Spliit amount is integer cents
 
 Spliit stores amounts as integers (×100). `Math.round(cadAmount * 100)` is the
 conversion. Do not pass floats. A 0.03 HKD transaction at a low FX rate will
 round to 1 cent minimum — that is correct behaviour.
 
-### 8. Dates are always HKT-aware
+### 9. Dates are always HKT-aware
 
 ICBCA emails contain local Hong Kong time with no timezone suffix. The parser
 appends `+08:00` before constructing a `Date` object. All downstream code uses
 the resulting UTC-correct `Date` — never re-parse the string.
+
+Google Wallet notifications send `postedAt` as epoch milliseconds. Use that
+timestamp directly to construct the `Date`.
+
+### 10. Google Wallet notifications are web-only
+
+Google Wallet parsing lives in `src/googleWalletParser.js`, not
+`emailParser.js`. `GOOGLE_WALLET_CURRENCY_SYMBOLS` is the source of truth for
+symbol-to-ISO parsing. Plain `$` is intentionally rejected as ambiguous; add an
+explicit symbol if Google Wallet emits a new unambiguous currency form.
+
+Receipt-preparation notifications such as "Preparing your receipt" /
+"We're adding the location to your receipt" are ignored with HTTP 204. They must
+not create a Spliit expense or send a Telegram error alert.
 
 ---
 
@@ -154,6 +198,11 @@ test if you have a sample string to hand.
 
 Frankfurter.app supports all major ISO 4217 codes, so no change to
 `currencyConverter.js` is needed.
+
+For Google Wallet notification symbols, edit `GOOGLE_WALLET_CURRENCY_SYMBOLS`
+in `src/googleWalletParser.js` and add tests in
+`test/googleWalletParser.test.js`. Do not guess plain `$`; keep it rejected
+unless there is a product decision to choose a default.
 
 ---
 
@@ -184,6 +233,7 @@ requires different downstream behaviour (see decision #4 above).
 | The `fetchFn` signature on every networked function | Tests depend on it; changing to global fetch breaks all network mocks |
 | `wrapper.sh` using `exec` | Replaces the shell process so stdin flows through unmodified |
 | `.env` in `.gitignore` | Contains live credentials; must never be committed |
+| Hono web app dependency injection | Keeps route tests pure and leaves a path to Cloudflare Workers |
 
 ---
 
@@ -201,6 +251,8 @@ TELEGRAM_CHAT_ID
 LOG_FILE                 (absolute path, created on first write)
 ```
 
+`src/web.js` also accepts optional `PORT`; it defaults to `3000`.
+
 ---
 
 ## External APIs
@@ -216,9 +268,11 @@ LOG_FILE                 (absolute path, created on first write)
 
 ## Deployment context
 
-- **Runtime**: cPanel shared hosting, invoked via email pipe — not a daemon
-- **Startup time matters**: the process handles one email and exits; avoid lazy
-  imports or deferred initialisations
+- **Email runtime**: cPanel shared hosting, invoked via email pipe — not a daemon
+- **Web runtime**: Hono on Node via `@hono/node-server`; `webApp.js` should stay
+  compatible with a future Cloudflare Worker wrapper that exports `app.fetch`
+- **Email startup time matters**: the process handles one email and exits; avoid lazy
+  imports or deferred initialisations on that path
 - **No writable `/tmp` guaranteed**: use `LOG_FILE` (configured to a path inside
   `$HOME`) for any disk writes
 - **PATH is minimal**: `wrapper.sh` enumerates known node locations; do not

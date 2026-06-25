@@ -8,6 +8,7 @@ export const CHANNELS = {
   ICBCA: 'ICBCA',
   PAYME: 'PayMe',
   WISE: 'Wise',
+  GOOGLE_WALLET: 'Google Wallet',
 };
 
 // ---------------------------------------------------------------------------
