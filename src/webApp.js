@@ -13,7 +13,7 @@ export function createWebApp({
 } = {}) {
   const app = new Hono();
 
-  app.post('/submit1', async (c) => {
+  app.post('/nodejs-ignore-20260613/submit1', async (c) => {
     let payload;
     try {
       payload = await c.req.json();

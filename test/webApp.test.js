@@ -24,7 +24,7 @@ const payment = {
 };
 
 function jsonRequest(method, body) {
-  return new Request('http://localhost/submit1', {
+  return new Request('http://localhost/nodejs-ignore-20260613/submit1', {
     method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -70,7 +70,7 @@ describe('createWebApp', () => {
 
   it('returns 400 for invalid JSON', async () => {
     const app = createWebApp({ cfg });
-    const res = await app.request(new Request('http://localhost/submit1', {
+    const res = await app.request(new Request('http://localhost/nodejs-ignore-20260613/submit1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: '{not json',
@@ -92,7 +92,7 @@ describe('createWebApp', () => {
 
   it('returns 405 for non-POST requests', async () => {
     const app = createWebApp({ cfg });
-    const res = await app.request('http://localhost/submit1');
+    const res = await app.request('http://localhost/nodejs-ignore-20260613/submit1');
 
     assert.equal(res.status, 405);
   });
