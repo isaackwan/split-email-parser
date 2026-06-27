@@ -1,0 +1,758 @@
+Return-Path: <annielam1509+caf_=parse-prd-20260617=split-email-parser.apps.isaackwan.com@gmail.com>
+Delivered-To: parse-prd-20260617@split-email-parser.apps.isaackwan.com
+Received: from sg-shared01.cpanelplatform.com
+	by sg-shared01.cpanelplatform.com with LMTP
+	id k+siLb1QP2rnAhkAFJWwbg
+	(envelope-from <annielam1509+caf_=parse-prd-20260617=split-email-parser.apps.isaackwan.com@gmail.com>)
+	for <parse-prd-20260617@split-email-parser.apps.isaackwan.com>; Sat, 27 Jun 2026 12:25:33 +0800
+Return-path: <annielam1509+caf_=parse-prd-20260617=split-email-parser.apps.isaackwan.com@gmail.com>
+Envelope-to: parse-prd-20260617@split-email-parser.apps.isaackwan.com
+Delivery-date: Sat, 27 Jun 2026 12:25:33 +0800
+Received: from mail-yx1-xb134.google.com ([2607:f8b0:4864:20::b134]:49527)
+	by sg-shared01.cpanelplatform.com with esmtps  (TLS1.3) tls TLS_AES_128_GCM_SHA256
+	(Exim 4.99.4)
+	(envelope-from <annielam1509+caf_=parse-prd-20260617=split-email-parser.apps.isaackwan.com@gmail.com>)
+	id 1wdKbj-00000006sLy-3O7p
+	for parse-prd-20260617@split-email-parser.apps.isaackwan.com;
+	Sat, 27 Jun 2026 12:25:33 +0800
+Received: by mail-yx1-xb134.google.com with SMTP id 956f58d0204a3-662b95934dcso1758672d50.3
+        for <parse-prd-20260617@split-email-parser.apps.isaackwan.com>; Fri, 26 Jun 2026 21:25:31 -0700 (PDT)
+ARC-Seal: i=2; a=rsa-sha256; t=1782534330; cv=pass;
+        d=google.com; s=arc-20260327;
+        b=i3egkw+t4kx7LoBKj4FiguOwjJ3y1T2g0vyzklbOqHaxeJ0yQQzzprhFpKsD23OUeD
+         tNkWqSfg0WdoZyMnCHEecbuKyVHHBhNfPzsSwcgHAzKz89UDmXX+N+q1yONmtP2jkhOx
+         Z2UZ1eIDIQGPVDaiKF0ulrT2gZ29PumDzZbBy5lg3iYkJGKTAAI7uhmPkIIZaPLqloEA
+         ESDujr46/SZrym5NxB/f3Y0GVLkmORVEcMxuBK/+OW3iE3PtR9kw0FUF4KINMhSfFYCd
+         VLmJxk37ggh2Mq+D0DxDW9RhLqbrFP1srwHtHfk2V6JORtbc5BoUQIoCvVEp3MMGluvj
+         bZBQ==
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:mime-version:from:date
+         :content-transfer-encoding:dkim-signature:dkim-signature
+         :delivered-to;
+        bh=TNYu87UQ91Xj0gncNtfPYjOSVgQzMOgv/IXIzw4sW2w=;
+        fh=n3JvYM8UqckC7PB8T4ycaiKlpdeqPXwsXv0TncPVIlw=;
+        b=SEYfGZuidLfimnZKAfXKoMHd0Gw+Zo7p9IZLXwP47/KWwGY9HmmxNvHi3KPT1LAn65
+         s5jAkl8GCYQTOYEppjx2BOjBK/ajMQ94eu3DKtdNlptdok/i5iCFY5sa/Qv674yOWZda
+         SkPROvalGibumgEmwd2ZojXEZbbJ0IfGQ6nU4TB3wYrJnT0KxrSWLaqTToqFYdosgfAO
+         PwabfBLvYEXOWooP0RfD7NeQawpSVkIt4o0g+HuZ7LfBoSXj8KFs4DP+Dc3hwVyKwYpK
+         NcNmNbww5Nn1bEosGRl9R/G0JJLPLp4YU3IoXs8WHCRZ+y6HWF7s4Vy0jxQpddpBBR/F
+         sDfg==;
+        darn=split-email-parser.apps.isaackwan.com
+ARC-Authentication-Results: i=2; mx.google.com;
+       dkim=pass header.i=@secure-app.payme.hsbc.com.hk header.s=ssg header.b=qvBdBmO1;
+       dkim=pass header.i=@sendgrid.info header.s=smtpapi header.b=BaCvGxju;
+       spf=pass (google.com: domain of bounces+21996374-a8ef-annielam1509=gmail.com@sgr.secure-app.payme.hsbc.com.hk designates 168.245.32.202 as permitted sender) smtp.mailfrom="bounces+21996374-a8ef-annielam1509=gmail.com@sgr.secure-app.payme.hsbc.com.hk";
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbc.com.hk
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782534330; x=1783139130;
+        h=to:subject:message-id:mime-version:from:date
+         :content-transfer-encoding:dkim-signature:dkim-signature
+         :delivered-to:x-forwarded-for:x-forwarded-to:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=TNYu87UQ91Xj0gncNtfPYjOSVgQzMOgv/IXIzw4sW2w=;
+        b=GRMPy/5MsoZdyEbPFMGuYIaGwqn+fUmeHk40xB1KakGxZUVmCIs2yp0P3uad/8BFbc
+         MQsRtVzUYmIjwhBSn5TTEdOGAY0goufBk/RBJPtYI4CdlxFRT4UuTa0vwVfqOTVZet7d
+         63MQG4RqdAVodPN5bd+BGMhE0eolh11DIcx6aoAu3R1KrDci4kmWPtFMCiWEcLdUDRUi
+         kAPAsv1J9iHqxHA6NfRg0KlA/z23p9eLvrqfOlw87l3ZPWuSyteA2lAs5v50Pr86p2Yf
+         nhUPF4lgIJNWXS46rbXJ9yckStN8sHzeVD/Vm0Ssdk3YMhgYQ9yGe2Cy76ukgtfdOuHn
+         2K1Q==
+X-Forwarded-Encrypted: i=2; AHgh+Roa2eMj7cqgrNS3WurtwyCh/vFPmdcEowoXEMqU/vDo/6/+LpCZqLnlN6DQJ/ZJpBYnHpuvdCp+xjqLq1ddqQi1nLM=@split-email-parser.apps.isaackwan.com
+X-Gm-Message-State: AOJu0YzMQty6m6t48ZLKRTCbEFv+83lqtkayY0C/JFa1irbMIIVKFW3M
+	gLdzQcqcBzZpcWIZxe+PBCuvV8Xu5otfmlfWpiDSaeeNM9fBsj+RFfnKWyJnqXTKA7lrY3mPMn4
+	41dn4/cxU8Dr448KdvcWGC04rSwbmAD6+YONlJKVnInESRV1breSGRL8y1xg36t27q/8=
+X-Received: by 2002:a05:690e:1c0b:b0:664:ae68:c9ff with SMTP id 956f58d0204a3-664ae68d1a5mr2779734d50.69.1782534329956;
+        Fri, 26 Jun 2026 21:25:29 -0700 (PDT)
+X-Forwarded-To: parse-prd-20260617@split-email-parser.apps.isaackwan.com
+X-Forwarded-For: annielam1509@gmail.com parse-prd-20260617@split-email-parser.apps.isaackwan.com
+Delivered-To: annielam1509@gmail.com
+Received: by 2002:a05:7010:835a:10b0:533:cb66:9054 with SMTP id 26-n1csp2520860mdy;
+        Fri, 26 Jun 2026 21:25:28 -0700 (PDT)
+X-Received: by 2002:a05:620a:17a8:b0:915:9c4b:fd98 with SMTP id af79cd13be357-9293aea0699mr1350742185a.24.1782534328481;
+        Fri, 26 Jun 2026 21:25:28 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782534328; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Qgv5XngLdE+arEx/S5nkJcF/WLS5/oBEed+Y7GvDBYoI8xEmOf5wF5bNimi5GgBvXl
+         ATRgAegz5Hxr9rPJlCDNbn9I1QMNb3TQk670j3SY2b8zk72OwaiCuShUJuotd8DxaSjB
+         fbWBxke47hUgSsFO48CmZas3kxWy6W7qXH0sUxqlzpRM2g7EDa6oUA8eBs8sBlhcJslO
+         srWUufsPIGPAG0tNGv9OOx33276tZtsuAi6FQiTvtyLHRsGGSCg5Dt+l+3MeB8tQcxmw
+         KqxdooYhzUeae+oYv21daVIdXzK5HMBEcA01FWL2Y4XZD9Coc9osBam0RPYIJyP1lGRs
+         zqcg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=to:subject:message-id:mime-version:from:date
+         :content-transfer-encoding:dkim-signature:dkim-signature;
+        bh=TNYu87UQ91Xj0gncNtfPYjOSVgQzMOgv/IXIzw4sW2w=;
+        fh=qJp55E3AWc2kezpaaArjtp5r6oR2/NJkYMPDxnsjJ9A=;
+        b=mVRsbKnp+lovx7SiekD3F8Fw7h9Ukno8JV2T+TGxADzy673Jj1RRpKtxRrDhjuB9yX
+         hsJHBmHjQ3cwqpvcT34iSmLEpGeyBrl2Tn6Y6HV5ReiVRjHhMM0c4/774RAy5cEOEQON
+         /PcGE3IjDfJNMHZ0/DGz65dC7U8/c+LDtvSMZNFbsbhZHOjBrzukCBGp2rJIl3zOsYmz
+         bpx+7CQCcmaGXE1vEKVEcqpzRK4mKmRzc7ButTJtyMS7gA5iqYfM3Am5+sU+P7QauOhS
+         gau+ANKEtZ8m+uSFwBhdriSz+HCVzqE+DVklpDAUbb325je1EF7e2Ee1Wh5z6V4OalJT
+         KPEg==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@secure-app.payme.hsbc.com.hk header.s=ssg header.b=qvBdBmO1;
+       dkim=pass header.i=@sendgrid.info header.s=smtpapi header.b=BaCvGxju;
+       spf=pass (google.com: domain of bounces+21996374-a8ef-annielam1509=gmail.com@sgr.secure-app.payme.hsbc.com.hk designates 168.245.32.202 as permitted sender) smtp.mailfrom="bounces+21996374-a8ef-annielam1509=gmail.com@sgr.secure-app.payme.hsbc.com.hk";
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbc.com.hk
+Received: from o3.ptr9461.secure-app.payme.hsbc.com.hk (o3.ptr9461.secure-app.payme.hsbc.com.hk. [168.245.32.202])
+        by mx.google.com with ESMTPS id af79cd13be357-925fd488385si1690488585a.60.2026.06.26.21.25.28
+        for <annielam1509@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 26 Jun 2026 21:25:28 -0700 (PDT)
+Received-SPF: pass (google.com: domain of bounces+21996374-a8ef-annielam1509=gmail.com@sgr.secure-app.payme.hsbc.com.hk designates 168.245.32.202 as permitted sender) client-ip=168.245.32.202;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@secure-app.payme.hsbc.com.hk header.s=ssg header.b=qvBdBmO1;
+       dkim=pass header.i=@sendgrid.info header.s=smtpapi header.b=BaCvGxju;
+       spf=pass (google.com: domain of bounces+21996374-a8ef-annielam1509=gmail.com@sgr.secure-app.payme.hsbc.com.hk designates 168.245.32.202 as permitted sender) smtp.mailfrom="bounces+21996374-a8ef-annielam1509=gmail.com@sgr.secure-app.payme.hsbc.com.hk";
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbc.com.hk
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=secure-app.payme.hsbc.com.hk;
+	h=content-transfer-encoding:content-type:date:from:mime-version:subject:
+	to:cc:content-type:date:feedback-id:from:subject:to;
+	s=ssg; t=1782534327;
+	bh=TNYu87UQ91Xj0gncNtfPYjOSVgQzMOgv/IXIzw4sW2w=;
+	b=qvBdBmO17si6tLriCi075HInVRjv5rTosn35i8riRTzZS0asHnH0S7rQGjw+0GsSs9Yu
+	f9aqXC+8WCmWUn5RvbceGFHSogZMBYgiFb8725yieOzQ+cf+RHqgDay9tQ6304LuN1yu0M
+	ZmLv2NO/DGuD3JBiCEi1N0kMJpC5XCYpwtY1+fKpHcYXxs/BnhkoCJnddpsP8QfoAz5uy0
+	sNiganW1Ey3ne2XVSHY4PiyQJ6BP0c+DnvFtAYfNQYy6mlKpkgWfP2YcO9Ohbjnl9MIiR4
+	Se1/HwBa/ToDUZqWOX1mYdVFmVHeqxnJAPEIs3fnJFjuOJ5EvNz5syYvceUZ/vOw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sendgrid.info;
+	h=content-transfer-encoding:content-type:date:from:mime-version:subject:
+	to:cc:content-type:date:feedback-id:from:subject:to;
+	s=smtpapi; t=1782534327;
+	bh=TNYu87UQ91Xj0gncNtfPYjOSVgQzMOgv/IXIzw4sW2w=;
+	b=BaCvGxjuuwVJBy5621Vp0RMHCrRtdsJqxVnByLgVPj/lF9PVwUe++i9VfhsnA7kkpjfi
+	bJL7rIw1VjNXJYo3PCwyCwNo0GN5f6vh9LUiLDQR/w3g6Dkx7CCCJZUmRnFqQUHRFqkwDX
+	jVtM4iUDTW51i5O1wGiEgIxjFtuhfNOtA=
+Received: by recvd-7d8d4bc94d-58mc4 with SMTP id recvd-7d8d4bc94d-58mc4-1-6A3F50B7-8D
+	2026-06-27 04:25:27.818383825 +0000 UTC m=+365383.657449952
+Received: from MjE5OTYzNzQ (unknown)
+	by geopod-ismtpd-1 (SG) with HTTP
+	id _A1xhSnpQKyUk2jAg4KZOA
+	Sat, 27 Jun 2026 04:25:27.736 +0000 (UTC)
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=iso-8859-1
+Date: Sat, 27 Jun 2026 04:25:27 +0000 (UTC)
+From: PayMe by HSBC <no-reply@secure-app.payme.hsbc.com.hk>
+Mime-Version: 1.0
+Message-ID: <_A1xhSnpQKyUk2jAg4KZOA@geopod-ismtpd-1>
+Subject: You have a pending payment to the business FRED-MEYER #0013 SHORELINE
+ USA
+X-SG-EID: 
+ =?us-ascii?Q?u001=2Ea3UBSZC4Fl5csEf0IiFSHV3cz65iq5TAEosg9hu035TEdle0NVH0eqID5?=
+ =?us-ascii?Q?h0rMim69Q=2Fb4VJLDspkk=2FPFHRMT=2FvRB4+jbIjtg?=
+ =?us-ascii?Q?o1APZYlNJnX59mnfdS7YHGB0trZARqBm5Aa6oV3?=
+ =?us-ascii?Q?H0rwZyRlXBMRv2c2uGCcUn70qHPjiHhQ5flKMaJ?=
+ =?us-ascii?Q?zxLv89uIhFisLtNOJXlnAOqVqhTdxaM+BnDqGWD?=
+ =?us-ascii?Q?PmJycsqDNAkZjLmf6zD=2F7sEFM+EcmIFb=2FBG4lV7?=
+ =?us-ascii?Q?YsA+LrqHYFV=2FJONctl7tzXkoHg=3D=3D?=
+To: annielam1509@gmail.com
+X-Entity-ID: u001.i04ZYC8PltaMyQjPpzZ2uw==
+X-Spam-Status: No, score=1.6
+X-Spam-Score: 16
+X-Spam-Bar: +
+X-Ham-Report: Spam detection software, running on the system "sg-shared01.cpanelplatform.com",
+ has NOT identified this incoming email as spam.  The original
+ message has been attached to this so you can view it or label
+ similar future email.  If you have any questions, see
+ root\@localhost for details.
+ Content preview:  You have a pending payment to the business _ _ _ _
+    _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ Content analysis details:   (1.6 points, 5.0 required)
+  pts rule name              description
+ ---- ---------------------- --------------------------------------------------
+ -0.0 SPF_PASS               SPF: sender matches SPF record
+  0.8 URIBL_GREY             Contains an URL listed in the URIBL greylist
+                             [URI: sendgrid.info]
+  0.5 URIBL_GOLD             Contains an URL listed in the URIBL GOLDlist
+                             [URI: sendgrid.info]
+ -0.1 DKIM_VALID_AU          Message has a valid DKIM or DK signature from author's
+                             domain
+ -0.1 DKIM_VALID             Message has at least one valid DKIM or DK signature
+  0.1 DKIM_SIGNED            Message has a DKIM or DK signature, not necessarily valid
+  0.2 HEADER_FROM_DIFFERENT_DOMAINS From and EnvelopeFrom 2nd level mail
+                             domains are different
+  0.1 TRACKER_ID             BODY: Incorporates a tracking ID number
+  0.1 MIME_HTML_ONLY         BODY: Message only has text/html MIME parts
+  0.0 HTML_IMAGE_RATIO_06    BODY: HTML has a low ratio of text to image area
+  0.0 HTML_MESSAGE           BODY: HTML included in message
+  0.0 RCVD_IN_DNSWL_BLOCKED  RBL: ADMINISTRATOR NOTICE: The query to DNSWL
+                             was blocked.  See
+                             http://wiki.apache.org/spamassassin/DnsBlocklists#DnsBlocklists-dnsbl-block
+                              for more information.
+                             [2607:f8b0:4864:20:0:0:0:b134 listed in]
+                             [list.dnswl.org]
+ -0.0 DKIMWL_WL_MED          DKIMwl.org - Medium trust sender
+X-Spam-Flag: NO
+
+<!DOCTYPE html>
+<html lang=3D"en" xmlns:v=3D"urn:schemas-microsoft-com:vml"xmlns:o=3D"urn:s=
+chemas-microsoft-com:office:office" style=3D"-ms-text-size-adjust:100%;-web=
+kit-text-size-adjust:100%;margin-top:0 !important;margin-bottom:0 !importan=
+t;margin-right:auto !important;margin-left:auto !important;padding-top:0 !i=
+mportant;padding-bottom:0 !important;padding-right:0 !important;padding-lef=
+t:0 !important;height:100% !important;width:100% !important;font-weight:nor=
+mal;font-style:normal;font-stretch:normal;font-family:sans-serif;letter-spa=
+cing:normal;background-color:#f2f2f2;" >
+<head style=3D"-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;" >
+    <meta charset=3D"utf-8" style=3D"-ms-text-size-adjust:100%;-webkit-text=
+-size-adjust:100%;" >
+    <meta name=3D"viewport" content=3D"width=3Ddevice-width" style=3D"-ms-t=
+ext-size-adjust:100%;-webkit-text-size-adjust:100%;" >
+    <meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge" style=3D"-ms=
+-text-size-adjust:100%;-webkit-text-size-adjust:100%;" >
+    <meta name=3D"x-apple-disable-message-reformatting" style=3D"-ms-text-s=
+ize-adjust:100%;-webkit-text-size-adjust:100%;" >
+    <meta name=3D"format-detection" content=3D"telephone=3Dno" style=3D"-ms=
+-text-size-adjust:100%;-webkit-text-size-adjust:100%;" >
+    <meta name=3D"format-detection" content=3D"date=3Dno" style=3D"-ms-text=
+-size-adjust:100%;-webkit-text-size-adjust:100%;" >
+    <meta name=3D"format-detection" content=3D"address=3Dno" style=3D"-ms-t=
+ext-size-adjust:100%;-webkit-text-size-adjust:100%;" >
+    <meta name=3D"format-detection" content=3D"email=3Dno" style=3D"-ms-tex=
+t-size-adjust:100%;-webkit-text-size-adjust:100%;" >
+    <title style=3D"-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%=
+;" >You have a pending payment to the business</title>
+    <style style=3D"-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%=
+;" >
+        html,
+        body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+            font-weight: normal;
+            font-style: normal;
+            font-stretch: normal;
+            font-family: sans-serif;
+            letter-spacing: normal;
+            background-color: #f2f2f2;
+        }
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+        div[style*=3D"margin: 16px 0"] {
+            margin: 0 !important;
+        }
+        table,
+        td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+        a {
+            text-decoration: none;
+        }
+        a[x-apple-data-detectors],
+        .unstyle-auto-detected-links a,
+        .aBn {
+            border-bottom: 0 !important;
+            cursor: default !important;
+            color: inherit !important;
+            text-decoration: underline !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+        .im {
+            color: inherit !important;
+        }
+        .a3s {
+            background-color: #f2f2f2 !important;
+        }
+        .a6S {
+            display: none !important;
+            opacity: 0.01 !important;
+        }
+        img.g-img+div {
+            display: none !important;
+        }
+        @media only screen and (min-device-width: 320px) and (max-device-wi=
+dth: 374px) {
+            u~div .email-container {
+                min-width: 320px !important;
+            }
+        }
+        @media only screen and (min-device-width: 375px) and (max-device-wi=
+dth: 413px) {
+            u~div .email-container {
+                min-width: 375px !important;
+            }
+        }
+        @media only screen and (min-device-width: 414px) {
+            u~div .email-container {
+                min-width: 414px !important;
+            }
+        }
+        .button-td,
+        .button-a {
+            transition: all 100ms ease-in;
+        }
+
+        .button-td-primary:hover,
+        .button-a-primary:hover {
+            background: #555555 !important;
+            border-color: #555555 !important;
+        }
+        @media screen and (max-width: 480px) {
+            .stack-column,
+            .stack-column-center {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                direction: ltr !important;
+            }
+            .stack-column-center {
+                text-align: center !important;
+            }
+            .center-on-narrow {
+                text-align: center !important;
+                display: block !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                float: none !important;
+            }
+            table.center-on-narrow {
+                display: inline-block !important;
+            }
+            .email-container p {
+            }
+            .list-stack {
+                width: 55% !important;
+            }
+        }
+        .email-container {
+            margin-top: 20px !important;
+        }
+        .upper-container-mask {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 12px;
+            -webkit-border-radius: 12px;
+            -moz-border-radius: 12px;
+            background-color: #ffffff;
+        }
+        .header-outer-redesign {
+            width: 100%;
+            max-width: 600px;
+            height: 80px;
+        }
+        .header-inner-red-bg {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 12px 12px 0px 0px;
+            background-color: #db0011;
+            margin: auto;
+        }
+        .header-white-log {
+            width: 100%;
+            max-width: 208px;
+            height: auto;
+        }
+        .email-content-h1 {
+            font-size: 22px;
+            font-weight: bold;
+            line-height: 1.36;
+            color: #000000;
+        }
+        .email-content-p {
+            font-size: 14px;
+            line-height: 1.86;
+            color: #000000;
+        }
+        .footer-bold-p {
+            height: 16px;
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1.33;
+            text-align: center;
+            color: #111111;
+        }
+        .footer-container-mask {
+            max-width: 600px;
+            height: auto;
+        }
+        .footer-copyright {
+            max-width: 543px;
+            height: auto;
+            font-size: 10px;
+            font-weight: normal;
+            line-height: 1.6;
+            color: #666666;
+        }
+        .email-content-list {
+            font-size: 14px;
+            line-height: 1.86;
+        }
+        .email-content-list-title {
+            font-weight: bold;
+            margin: auto;
+        }
+        .reset-pin-butn,
+        .learn-more-butn {
+            width: 90%;
+            max-width: 311px;
+            -webkit-border-radius: 100;
+            -moz-border-radius: 100;
+            border-radius: 100px;
+            color: #ffffff;
+            background: #db0011;
+            text-decoration: none;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.15);
+            font-size: 14px;
+            line-height: 48px;
+            text-align: center;
+        }
+        .reset-pin-butn {
+            margin-left: 20px;
+        }
+        .outcoming-amount,
+        .incoming-amount {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 10px !important;
+        }
+        .outcoming-amount {
+            color: #db0011;
+        }
+        .incoming-amount {
+            color: #00847e;
+        }
+        .outcoming-message,
+        .incoming-message {
+            color: #191313;
+            line-height: 1.5;
+            margin-top: 0px !important;
+            margin-bottom: 4px !important;
+        }
+        .outcoming-timestamp,
+        .incoming-timestamp {
+            font-size: 12px;
+            line-height: 1.33;
+            color: #767676 !important;
+            margin-top: 0px !important;
+
+        }
+        a {
+            text-decoration: none;
+            color: #111111 !important;
+        }
+        .reset-pin-butn:hover,
+        .learn-more-butn:hover {
+            background-color: #bc1211;
+            cursor: pointer;
+        }
+        .reset-pin-butn:active,
+        .learn-more-butn:active {
+            background: #db0011;
+            cursor: pointer;
+        }
+        .peerTransactionIcon {
+            width: 100%;
+            max-width: 80px;
+            height: 80px;
+            margin-top: 18px;
+            border-radius: 50%;
+            -moz-border-radius: 50%;
+            -webkit-border-radius: 50%;
+        }
+        .email-content-p > p > a {
+            color: #5EABFF !important;
+        }
+
+    </style>
+</head>
+
+<body width=3D"100%" style=3D"-ms-text-size-adjust:100%;-webkit-text-size-a=
+djust:100%;margin-top:0 !important;margin-bottom:0 !important;margin-right:=
+auto !important;margin-left:auto !important;padding-top:0 !important;paddin=
+g-bottom:0 !important;padding-right:0 !important;padding-left:0 !important;=
+mso-line-height-rule:exactly;background-color:#f2f2f2;height:100% !importan=
+t;width:100% !important;font-weight:normal;font-style:normal;font-stretch:n=
+ormal;font-family:sans-serif;letter-spacing:normal;" >
+<center style=3D"-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;wi=
+dth:100%;background-color:#f2f2f2;padding-top:5px;" >
+    <div style=3D"-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;d=
+isplay:none;font-size:1px;line-height:1px;max-height:0px;max-width:0px;opac=
+ity:0;overflow:hidden;mso-hide:all;font-family:sans-serif;" >
+    </div>
+    <div style=3D"-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;d=
+isplay:none;font-size:1px;line-height:1px;max-height:0px;max-width:0px;opac=
+ity:0;overflow:hidden;mso-hide:all;font-family:sans-serif;" >
+        &zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&=
+nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbs=
+p;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+    </div>
+    <div  class=3D"email-container" style=3D"-ms-text-size-adjust:100%;-web=
+kit-text-size-adjust:100%;max-width:680px;margin-top:20px !important;margin=
+-bottom:0;margin-right:auto;margin-left:auto;padding-top:0;padding-bottom:0=
+;padding-right:20px;padding-left:20px;" >
+        <!-- Email Body : BEGIN -->
+        <table role=3D"presentation" cellspacing=3D"0" cellpadding=3D"0" bo=
+rder=3D"0" width=3D"100%"
+               class=3D"upper-container-mask" style=3D"-ms-text-size-adjust=
+:100%;-webkit-text-size-adjust:100%;margin-top:0 !important;margin-bottom:0=
+ !important;margin-right:auto !important;margin-left:auto !important;mso-ta=
+ble-lspace:0pt !important;mso-table-rspace:0pt !important;border-spacing:0 =
+!important;border-collapse:collapse !important;table-layout:fixed !importan=
+t;width:100%;max-width:600px;height:auto;border-radius:12px;-webkit-border-=
+radius:12px;-moz-border-radius:12px;background-color:#ffffff;" >
+            <!-- Email Header : BEGIN -->
+            <tr class=3D"header-outer-redesign" style=3D"-ms-text-size-adju=
+st:100%;-webkit-text-size-adjust:100%;width:100%;max-width:600px;height:80p=
+x;" >
+                <td  class=3D"header-inner-red-bg" style=3D"-ms-text-size-a=
+djust:100%;-webkit-text-size-adjust:100%;padding-right:0;padding-left:0;tex=
+t-align:center;mso-table-lspace:0pt !important;mso-table-rspace:0pt !import=
+ant;width:100%;max-width:600px;height:84px;border-radius:12px 12px 0px 0px;=
+background-color:#db0011;margin-top:auto;margin-bottom:auto;margin-right:au=
+to;margin-left:auto;" >
+                    <img src=3D"https://assets.paymebiz.hsbc.com.hk/public-=
+web-content/public-web-content/cup/onboarding/image/PaymeLogo.png" alt=3D"P=
+ayMe from HSBC Logo" class=3D"header-white-log" style=3D"-ms-text-size-adju=
+st:100%;-webkit-text-size-adjust:100%;-ms-interpolation-mode:bicubic;width:=
+100%;max-width:136px;height:60px;" width=3D"136px" height=3D"60px" >
+                </td>
+            </tr>
+            <!-- Email Header : END -->
+
+            <!-- Icon -->
+            <tr style=3D"-ms-text-size-adjust:100%;-webkit-text-size-adjust=
+:100%;" >
+                <td style=3D"-ms-text-size-adjust:100%;-webkit-text-size-ad=
+just:100%;mso-table-lspace:0pt !important;mso-table-rspace:0pt !important;"=
+ >
+                    <table role=3D"presentation" cellspacing=3D"0" cellpadd=
+ing=3D"0" border=3D"0" width=3D"100%" style=3D"-ms-text-size-adjust:100%;-w=
+ebkit-text-size-adjust:100%;mso-table-lspace:0pt !important;mso-table-rspac=
+e:0pt !important;border-spacing:0 !important;border-collapse:collapse !impo=
+rtant;table-layout:fixed !important;margin-top:0 !important;margin-bottom:0=
+ !important;margin-right:auto !important;margin-left:auto !important;" >
+                        <tr style=3D"-ms-text-size-adjust:100%;-webkit-text=
+-size-adjust:100%;" >
+                            <td style=3D"text-align: center;">
+                                <img src=3D"https://assets.paymebiz.hsbc.co=
+m.hk/public-web-content/public-web-content/cup/onboarding/image/icCCLeeunio=
+nPay.png" alt=3D"Card Picture" class=3D"header-white-log" style=3D"padding:=
+20px;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-interpolat=
+ion-mode:bicubic;width:100%;max-width:120px;height:120px;" height=3D"120px"=
+ width=3D"120px" />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <!-- Icon : END -->
+
+            <!-- 1 Hidden Email Title : BEGIN -->
+            <tr style=3D"-ms-text-size-adjust:100%;-webkit-text-size-adjust=
+:100%;" >
+                <td style=3D"-ms-text-size-adjust:100%;-webkit-text-size-ad=
+just:100%;mso-table-lspace:0pt !important;mso-table-rspace:0pt !important;"=
+ >
+                    <table role=3D"presentation" cellspacing=3D"0" cellpadd=
+ing=3D"0" border=3D"0" width=3D"100%" style=3D"-ms-text-size-adjust:100%;-w=
+ebkit-text-size-adjust:100%;mso-table-lspace:0pt !important;mso-table-rspac=
+e:0pt !important;border-spacing:0 !important;border-collapse:collapse !impo=
+rtant;table-layout:fixed !important;margin-top:0 !important;margin-bottom:0=
+ !important;margin-right:auto !important;margin-left:auto !important;" >
+                        <tr style=3D"-ms-text-size-adjust:100%;-webkit-text=
+-size-adjust:100%;" >
+                            <td style=3D"font-size: 20px; line-height: 30px=
+; text-align: center; padding-left:24px;padding-right: 24px;">
+                                You have a pending payment to the business =
+<span style=3D"font-size: 22px;font-weight: 700;">FRED-MEYER #0013 SHORELIN=
+E USA</span> via PayMe
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <!-- 1 Hidden Email Title : END -->
+
+            <!-- 1 Column Text : BEGIN -->
+            <tr>
+                <td>
+                    <table role=3D"presentation" cellspacing=3D"0" cellpadd=
+ing=3D"0" border=3D"0" width=3D"100%">
+                        <tr>
+                            <td style=3D"padding-left: 20px;padding-right: =
+20px;" class=3D"email-content-p">
+                                <p style=3D"text-align: center; font-weight=
+: 700; font-size: 20px; color: red; margin-bottom: 0;">- HKD 97.22</p>
+                                <p style=3D"text-align: center; font-size: =
+14px; color: red;margin-top: 0;">( USD 12.24 )</p>
+                                <p style=3D"text-align: center; font-size: =
+20px;">Payment</p>
+                                <p style=3D"text-align: center; font-size: =
+14px; margin-top: 0;margin-bottom: 0;">Transaction ID</p>
+                                <p style=3D"text-align: center; font-size: =
+14px; margin-top: 0;">U1950034420260627122527120297</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style=3D"background: #f1f1f1;height: 10px;l=
+ine-height: 10px;"></td>
+                        </tr>
+                        <tr>
+                            <td style=3D"padding: 20px;">
+                                <div style=3D"height: 40px;line-height: 40p=
+x;"><span style=3D"color: #777777">Transaction fee</span> <span style=3D"fl=
+oat: right;">HKD 0.96</span></div>
+                                <div style=3D"height: 40px;line-height: 40p=
+x;"><span style=3D"color: #777777">Exchange rate</span> <span style=3D"floa=
+t: right;">7.864222</span></div>
+                                <div style=3D"height: 40px;line-height: 40p=
+x;"><span style=3D"color: #777777">Date and time</span> <span style=3D"floa=
+t: right;">12:25 27/06/2026</span></div>
+                                <div style=3D"height: 40px;line-height: 40p=
+x;"><span style=3D"color: #777777">Payment status</span> <span style=3D"flo=
+at: right;">Pending</span></div>
+                                <hr>
+                                <div style=3D"clear: both;padding-top: 10px=
+;">If you didn't make this payment, please contact our <a href=3D"https://u=
+21996374.ct.sendgrid.net/ls/click?upn=3Du001.NxNtEBzeHyX46GPzR23gfff1ynjD9L=
+M-2F0pSFfgGx-2BsuaQmAylf0fN-2FcaNAPYG8om0NPr_1FZZWAbGMyZjX0cyNxivgHq2oLi-2B=
+9Q9i-2Bbjcs2wu1Q-2Fg5eXPAqsgK3BQMFT-2Bis0TtyjtQmrJaHmcoCTw6iD0xA12Xny8pepVl=
+bbO5QVlrHQJqjcXQp3FQU6Dxd1YnnVRBG0wwY6l-2FvAZxliCyKmtVpRSYoCHtgmYm4rTGYV6Ty=
+B-2BthdPNvj2tSCetXVMgB-2BgsyLvO3inBEctybYCoICDAw-3D-3D" style=3D"display: i=
+nline-block;color: #111111;text-decoration: underline; font-weight: 700;">C=
+ustomer Service</a> team for support.</div>
+                                <p style=3D"margin-top:10px;margin-bottom:0=
+;margin-right:0;margin-left:0;" >Thank You,</p>
+                                <p style=3D"margin-top:0;margin-bottom:10px=
+;margin-right:0;margin-left:0;" >Team PayMe</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <!-- 1 Column Text : END -->
+
+        </table>
+        <!-- Email Body : END -->
+
+        <!-- Email Footer : BEGIN -->
+        <table role=3D"presentation" cellspacing=3D"0" cellpadding=3D"0" bo=
+rder=3D"0" width=3D"100%"
+               class=3D"footer-container-mask" style=3D"margin-top:auto;mar=
+gin-bottom:auto;margin-right:auto;margin-left:auto;" >
+            <!-- Clear Spacer : BEGIN -->
+            <tr>
+                <td aria-hidden=3D"true" height=3D"40" style=3D"font-size:0=
+px;line-height:0px;" >
+                    &nbsp;
+                </td>
+            </tr>
+            <!-- Clear Spacer : END -->
+            <!-- 2 Even Columns : BEGIN -->
+            <tr>
+                <td style=3D"padding-top:0;padding-bottom:20px;padding-righ=
+t:10px;padding-left:10px;" >
+                    <table role=3D"presentation" border=3D"0" cellpadding=
+=3D"0" cellspacing=3D"0" width=3D"100%">
+                        <tr>
+                            <td valign=3D"top" width=3D"40%">
+                                <table role=3D"presentation" cellspacing=3D=
+"0" cellpadding=3D"0" border=3D"0" width=3D"100%">
+                                    <tr>
+                                        <td style=3D"text-align:center;padd=
+ing-top:0;padding-bottom:0;padding-right:10px;padding-left:10px;" >
+                                            <p class=3D"footer-bold-p">
+                                                <a href=3D"https://u2199637=
+4.ct.sendgrid.net/ls/click?upn=3Du001.NxNtEBzeHyX46GPzR23gfff1ynjD9LM-2F0pS=
+FfgGx-2Bsu7JrSCRf2Le1D81b5iqVnpHnn6_1FZZWAbGMyZjX0cyNxivgHq2oLi-2B9Q9i-2Bbj=
+cs2wu1Q-2Fg5eXPAqsgK3BQMFT-2Bis0Tt8OjFKnJ9U2wyqbXIJnzl8-2BuQa6FYJ0wtZL2BVUe=
+dxLr4Dfi1jPLQ5CMZOYstIRy4RfllHocZ74ZR6Xzuusmb35WlS5JRb2NAIHQGirVRjQuCsb2Ftt=
+DxgRoVjD4vvzNVCKLmCdb3GQUejhlntRtOA-3D-3D">Contact Us</a>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td valign=3D"top" width=3D"60%">
+                                <table role=3D"presentation" cellspacing=3D=
+"0" cellpadding=3D"0" border=3D"0" width=3D"100%">
+                                    <tr>
+                                        <p class=3D"footer-bold-p">
+                                            <a href=3D"https://u21996374.ct=
+.sendgrid.net/ls/click?upn=3Du001.NxNtEBzeHyX46GPzR23gfff1ynjD9LM-2F0pSFfgG=
+x-2BsuDB0OHxOx7-2FqUzuX3yH-2BOF2l-2BdIdVbhGx6feJDbBWTkCd6H060-2B927-2FqWWj1=
+i4Vso-3Dw4RT_1FZZWAbGMyZjX0cyNxivgHq2oLi-2B9Q9i-2Bbjcs2wu1Q-2Fg5eXPAqsgK3BQ=
+MFT-2Bis0TQg7Mu2nxu3VUjUfXDVT85t-2FRUYyn8s-2FPXCSe5IluXkqgb-2B5AyICH3VqgQLp=
+otdDsoJ1sJeopbXsFGxlph025uq6GZhnvDc6c32K8iBtCh5YHQurnX-2FCUo1TMiAAgUhz4AgmD=
+xG15LwTwsXIPEWg1eg-3D-3D">Terms &#38; Conditions</a>
+                                        </p>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <!-- 2 Even Columns : END -->
+
+            <!-- Clear Spacer : BEGIN -->
+            <tr>
+                <td aria-hidden=3D"true" height=3D"20" style=3D"font-size:0=
+px;line-height:0px;" >
+                    &nbsp;
+                    <hr style=3D"border-width:1px;border-style:solid;border=
+-color:#ebebeb;max-width:518px;" >
+                    <div style=3D"padding-left: 35px;"><img style=3D"max-wi=
+dth: 84px;max-height: 38px;" width=3D"84px" height=3D"38px" src=3D"https://=
+assets.paymebiz.hsbc.com.hk/public-web-content/public-web-content/cup/onboa=
+rding/image/hsbcLogoFooter.png" /></div>
+                </td>
+            </tr>
+            <!-- Clear Spacer : END -->
+
+            <!-- 1 Column Text : BEGIN -->
+            <tr>
+                <td>
+                    <table role=3D"presentation" cellspacing=3D"0" cellpadd=
+ing=3D"0" border=3D"0" width=3D"100%"
+                           class=3D"footer-copyright">
+                        <tr>
+                            <td style=3D"padding-top:0px;padding-bottom:20p=
+x;padding-right:20px;padding-left:20px;" >
+                                <p style=3D"margin-top:0;margin-bottom:20px=
+;margin-right:0;margin-left:0;" >=A9 Copyright. The Hongkong and Shanghai B=
+anking Corporation Limited 2026. All rights reserved.</p>
+                                <p style=3D"margin-top:0;margin-bottom:20px=
+;margin-right:0;margin-left:0;" >SVF license number: SVFB002</p>
+                                <p style=3D"margin-top:0;margin-bottom:20px=
+;margin-right:0;margin-left:0;" >Please do not provide any personal details=
+ or confidential information including your phone number, bank account or c=
+redit card number, etc. in your email.</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <!-- 1 Column Text : END -->
+        </table>
+        <!-- Email Footer : END -->
+    </div>
+</center>
+<img src=3D"https://u21996374.ct.sendgrid.net/wf/open?upn=3Du001.VYmUB1R6NJ=
+0OCy7YvsMTyvifoUG4qwVOJO0T77AGccmZlWvpXPlTfx5KHkUJgTJnlbkRswyrvxbAiQB3FVAl8=
+7rUaUaOekkimNePse5tpRdSDmH22kJbLUSlYLBMnzTQrYRpIZMzX3BV6RIJZ9ql6qOm0eSU4cIt=
+vHe2qcLfRJJY0dpM6iq-2Bm7OBJTwJlwGxoC5IDBcrgp7Fumnw3cqSZduhSf9Pe3yqbaHe7vjwe=
+HI-3D" alt=3D"" width=3D"1" height=3D"1" border=3D"0" style=3D"height:1px !=
+important;width:1px !important;border-width:0 !important;margin-top:0 !impo=
+rtant;margin-bottom:0 !important;margin-right:0 !important;margin-left:0 !i=
+mportant;padding-top:0 !important;padding-bottom:0 !important;padding-right=
+:0 !important;padding-left:0 !important;"/></body>
+</html>

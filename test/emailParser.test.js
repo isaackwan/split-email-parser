@@ -214,10 +214,12 @@ describe('parseEmail (integration)', () => {
     assert.equal(result.channel, CHANNELS.PAYME);
     assert.equal(result.cardLast4, null);
     assert.equal(result.type, PAYME_TRANSACTION_TYPES.PURCHASE);
-    assert.equal(result.amount, 31.64);
-    assert.equal(result.currency, 'HKD');
+    assert.equal(result.amount, 15.9);
+    assert.equal(result.currency, 'MYR');
     assert.equal(result.originalAmount, 15.9);
     assert.equal(result.originalCurrency, 'MYR');
+    assert.equal(result.settlementAmount, 31.64);
+    assert.equal(result.settlementCurrency, 'HKD');
     assert.equal(result.merchantRaw, 'Four Beans Ventures Sdn BIpoh MYS');
     assert.equal(result.date.toISOString(), '2026-03-27T13:06:00.000Z');
   });
@@ -229,10 +231,12 @@ describe('parseEmail (integration)', () => {
     assert.equal(result.channel, CHANNELS.PAYME);
     assert.equal(result.cardLast4, null);
     assert.equal(result.type, PAYME_TRANSACTION_TYPES.PRE_AUTH);
-    assert.equal(result.amount, 78.39);
-    assert.equal(result.currency, 'HKD');
+    assert.equal(result.amount, 39);
+    assert.equal(result.currency, 'MYR');
     assert.equal(result.originalAmount, 39);
     assert.equal(result.originalCurrency, 'MYR');
+    assert.equal(result.settlementAmount, 78.39);
+    assert.equal(result.settlementCurrency, 'HKD');
     assert.equal(result.merchantRaw, 'LI ER NYONYA-SUSHI Georgetown MY');
     assert.equal(result.date.toISOString(), '2026-04-12T06:13:00.000Z');
   });
@@ -248,8 +252,27 @@ describe('parseEmail (integration)', () => {
     assert.equal(result.currency, 'HKD');
     assert.equal(result.originalCurrency, 'HKD');
     assert.equal(result.originalAmount, 32);
+    assert.equal(result.settlementCurrency, 'HKD');
+    assert.equal(result.settlementAmount, 32);
     assert.equal(result.merchantRaw, 'MARKS & SPENCER CENTRAL HKG');
     assert.equal(result.date.toISOString(), '2026-06-01T06:49:00.000Z');
+  });
+
+  it('parses the PayMe PRE_AUTH USD fixture using the transaction currency', async () => {
+    const raw = fixture('payme-preauth3.eml');
+    const result = await parseEmail(raw);
+
+    assert.equal(result.channel, CHANNELS.PAYME);
+    assert.equal(result.cardLast4, null);
+    assert.equal(result.type, PAYME_TRANSACTION_TYPES.PRE_AUTH);
+    assert.equal(result.amount, 12.24);
+    assert.equal(result.currency, 'USD');
+    assert.equal(result.originalCurrency, 'USD');
+    assert.equal(result.originalAmount, 12.24);
+    assert.equal(result.settlementCurrency, 'HKD');
+    assert.equal(result.settlementAmount, 97.22);
+    assert.equal(result.merchantRaw, 'FRED-MEYER #0013 SHORELINE USA');
+    assert.equal(result.date.toISOString(), '2026-06-27T04:25:00.000Z');
   });
 
   it('parses the Wise PURCHASE fixture end-to-end', async () => {

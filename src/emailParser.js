@@ -158,7 +158,9 @@ export function decodeEntities(str) {
  *   type: string,
  *   amount: number,
  *   currency: string,
- *   merchantRaw: string
+ *   merchantRaw: string,
+ *   settlementAmount?: number,
+ *   settlementCurrency?: string,
  * }} Transaction
  */
 export function parseTransactionText(text, context = {}) {
@@ -207,7 +209,7 @@ function parseIcbcaTransactionText(text) {
     cardLast4,
     date,
     type,
-    amount: parseFloat(amountStr.replace(/,/g, '')),
+    amount: parseDecimalAmount(amountStr),
     currency,
     // Keep the raw merchant string exactly as received.
     // Trimming / normalisation is intentionally deferred here so callers can
@@ -238,22 +240,25 @@ function parsePayMeTransactionText(text) {
       year,
     ] = match;
     const merchant = cleanPayMeMerchant(merchantRaw);
-    const amount = parseFloat(amountStr.replace(/,/g, ''));
-    const originalAmount = originalAmountStr
-      ? parseFloat(originalAmountStr.replace(/,/g, ''))
-      : amount;
-    const originalCurrencyCode = originalCurrency || currency;
+    const settlementAmount = parseDecimalAmount(amountStr);
+    const settlementCurrency = currency;
+    const transactionAmount = originalAmountStr
+      ? parseDecimalAmount(originalAmountStr)
+      : settlementAmount;
+    const transactionCurrency = originalCurrency || settlementCurrency;
 
     return {
       channel: CHANNELS.PAYME,
       cardLast4: null,
       date: new Date(`${year}-${month}-${day}T${hour}:${minute}:00+08:00`),
       type,
-      amount,
-      currency,
+      amount: transactionAmount,
+      currency: transactionCurrency,
       merchantRaw: merchant,
-      originalCurrency: originalCurrencyCode,
-      originalAmount,
+      originalCurrency: transactionCurrency,
+      originalAmount: transactionAmount,
+      settlementCurrency,
+      settlementAmount,
       status,
     };
   }
@@ -303,7 +308,7 @@ function parseWiseTransactionText(text, { subject, date, receivedDate } = {}) {
         cardLast4: null,
         date: transactionDate,
         type: WISE_TRANSACTION_TYPES.PURCHASE,
-        amount: parseFloat(amountStr.replace(/,/g, '')),
+        amount: parseDecimalAmount(amountStr),
         currency,
         merchantRaw: merchantRaw.trim(),
       };
@@ -328,7 +333,7 @@ function parseWiseTransactionText(text, { subject, date, receivedDate } = {}) {
     cardLast4: null,
     date: transactionDate,
     type: WISE_TRANSACTION_TYPES.PURCHASE,
-    amount: parseFloat(amountStr.replace(/,/g, '')),
+    amount: parseDecimalAmount(amountStr),
     currency,
     merchantRaw: merchantRaw.trim(),
   };
@@ -374,4 +379,8 @@ function getLastReceivedDate(rawEmail) {
 
   const parsed = new Date(timestampPart);
   return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function parseDecimalAmount(amountStr) {
+  return parseFloat(amountStr.replace(/,/g, ''));
 }
