@@ -4,7 +4,10 @@
  * Flow:
  *   stdin → parseEmail → processTransaction → Telegram success
  *
- * On any failure:
+ * On parse failure:
+ *   → log to file → Telegram error alert → exit 0 (avoid MTA bounce noise)
+ *
+ * On downstream failure:
  *   → log to file → Telegram error alert → exit 1
  *
  * Config validation happens first so a misconfigured deployment fails loudly
@@ -12,10 +15,7 @@
  */
 
 import { loadConfig } from './config.js';
-import { parseEmail } from './emailParser.js';
-import { sendTelegram, formatErrorMessage } from './telegram.js';
-import { log } from './logger.js';
-import { processTransaction } from './transactionProcessor.js';
+import { handlePipedEmail } from './pipeHandler.js';
 
 // ---------------------------------------------------------------------------
 // Validate config at startup — crashes with a clear message if .env is wrong
@@ -44,34 +44,7 @@ async function readStdin() {
 // ---------------------------------------------------------------------------
 async function main() {
   const rawEmail = await readStdin();
-
-  try {
-    // 1. Parse the MIME email into a structured transaction
-    const tx = await parseEmail(rawEmail);
-
-    // 2. Convert, create the Spliit expense, log, and notify Telegram
-    await processTransaction(tx, cfg, { sourceLabel: 'email' });
-  } catch (err) {
-    // -----------------------------------------------------------------------
-    // Error path: log locally, then attempt Telegram alert
-    // -----------------------------------------------------------------------
-    await log(cfg.logFile, 'error', err.message, { stack: err.stack });
-
-    try {
-      await sendTelegram(
-        cfg.telegram.botToken,
-        cfg.telegram.chatId,
-        formatErrorMessage(err, rawEmail)
-      );
-    } catch (telegramErr) {
-      // Telegram itself failed — write to stderr so cPanel's mail log picks it up
-      process.stderr.write(
-        `[telegram] Failed to send error alert: ${telegramErr.message}\n`
-      );
-    }
-
-    process.exit(1);
-  }
+  process.exitCode = await handlePipedEmail(rawEmail, cfg);
 }
 
 main();

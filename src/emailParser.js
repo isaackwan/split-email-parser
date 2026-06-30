@@ -1,5 +1,12 @@
 import { simpleParser } from 'mailparser';
 
+export class EmailParseError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'EmailParseError';
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Channel registry
 // ---------------------------------------------------------------------------
@@ -181,7 +188,7 @@ export function parseTransactionText(text, context = {}) {
     return icbca;
   }
 
-  throw new Error(
+  throw new EmailParseError(
     `Could not parse transaction from email body. Snippet: "${text.slice(0, 300)}"`
   );
 }
@@ -353,7 +360,7 @@ export async function parseEmail(rawEmail) {
   // the plain-text part if somehow the HTML is absent.
   const source = mail.html || mail.text || '';
   if (!source) {
-    throw new Error('Email has no readable text or HTML body');
+    throw new EmailParseError('Email has no readable text or HTML body');
   }
 
   const text = decodeEntities(stripHtml(source));
