@@ -1,0 +1,370 @@
+Delivered-To: annielam1509@gmail.com
+Received: by 2002:a05:7011:c8d2:20b0:533:cb66:9054 with SMTP id qr18-n2csp172897mdb;
+        Mon, 29 Jun 2026 20:02:02 -0700 (PDT)
+X-Received: by 2002:a05:6402:40cf:b0:698:3b7b:e48c with SMTP id 4fb4d7f45d1cf-69879e3b3a7mr634558a12.34.1782788522094;
+        Mon, 29 Jun 2026 20:02:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782788522; cv=none;
+        d=google.com; s=arc-20260327;
+        b=WKjySF6J11pJkYR/t+kgslx4kr18tNLh3Wmz6E3w6rSmLCZGtdp5SkDxOnMTwAj7lS
+         dwzB2/dPOVu5mtBtfUndK8OOYmTh6mQkCYbGGYwQMXSdsFQFU5c3kj3+oVA17bvU/06Q
+         cwT8gsqLe1KgIxGlT5C/RBkxuolnoeLpznLICZZDsLIHrPxRYcQEDHkkZV/CUWb2qVNz
+         yIg7ewh8P4PPyQfXhjUuAYxi3+q7415g+R9ecOoJo7sqY0EDXgL6JyD1BJg40XOxMP5T
+         M+VxLn1xJbEjcVSbm0jxEcYRy132yUuIyK0PvWsaXfO0Pi6du+j2xOvfVFTi9LzSzMOQ
+         mPsw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:mime-version:subject:to:from:date
+         :dkim-signature:message-id;
+        bh=bRDk6XsRjUtRFetI1eiDjSFHMP4GTgZUk4geO2DiKbA=;
+        fh=qJp55E3AWc2kezpaaArjtp5r6oR2/NJkYMPDxnsjJ9A=;
+        b=DxX+p57834/4EIJ6dCNz9xs1Q7Y2M4WtuaclN9Il2nsyaRtuf1zfeUX8CWS3OEWJXO
+         aVz3mEk/Nwdm2Hyt4tlPFuIjU+e9WF0RSLsUQaXnKQCwI8xXnFcBfQUtmf6SUcywMI4d
+         RFulXc9xbv1ixHj1N7D+gpamiORdBTE0MVxYGwq7ofG/+AY70Q46ekvPskNneO1pvBmT
+         tgbm5nNqJrgN1eQTgng/hdHaZKMnJGM+4bx5enQX54MTS6DHqaguF92En+q6X/V/YSck
+         duERbR9FeJcOSWhO/rdcrKr/IkRknm+pgxtsgHnvD9EN1jFegF9dtqOq4PnRAOZAb1kX
+         WB2w==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@hsbc.com.hk header.s=hk13-03102021 header.b=DEjSXmil;
+       spf=pass (google.com: domain of no-reply-payme@notification.hsbc.com.hk designates 66.159.234.192 as permitted sender) smtp.mailfrom=no-reply-payme@notification.hsbc.com.hk;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbc.com.hk
+Return-Path: <no-reply-payme@notification.hsbc.com.hk>
+Received: from mx08-002f0603.pphosted.com (mx08-002f0603.pphosted.com. [66.159.234.192])
+        by mx.google.com with ESMTPS id 4fb4d7f45d1cf-6987c9933a2si433496a12.282.2026.06.29.20.02.01
+        for <annielam1509@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Jun 2026 20:02:02 -0700 (PDT)
+Received-SPF: pass (google.com: domain of no-reply-payme@notification.hsbc.com.hk designates 66.159.234.192 as permitted sender) client-ip=66.159.234.192;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@hsbc.com.hk header.s=hk13-03102021 header.b=DEjSXmil;
+       spf=pass (google.com: domain of no-reply-payme@notification.hsbc.com.hk designates 66.159.234.192 as permitted sender) smtp.mailfrom=no-reply-payme@notification.hsbc.com.hk;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=hsbc.com.hk
+Message-ID: <6a4331aa.cf3d283c.18f435.085cSMTPIN_ADDED_BROKEN@mx.google.com>
+X-Google-Original-Message-ID: <3a074ca6-15ed-3d66-9052-bdaca69fe3eb@MDP__apiapg01_hk_nprod_HK_HBAP:WPB:payme>
+Received: from pps.filterd (m0444685.ppops.net [127.0.0.1])
+	by mx08-002f0603.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65U2EP7e805333
+	for <annielam1509@gmail.com>; Tue, 30 Jun 2026 03:02:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hsbc.com.hk; h=
+	content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=hk13-03102021; bh=bRDk6XsRjUtRFetI1e
+	iDjSFHMP4GTgZUk4geO2DiKbA=; b=DEjSXmil+NE3ryD95Y/2ubC87ezAsOIst1
+	D2rFgzAp7MLk0vmzvye57ji1PeR7Km5UwabBS5ipDZU/IfcPdBb01+pZfaFpcPlA
+	9GNrlbbH5VgJ0YSkjUzbpbizVLAPEMdWf2vKtAZigitg1iaFEcGDGYg9fpDNkKou
+	8dZ2w0aouwertP2DekvBK7E/ANPl4G2BiP8IgzXHYBW2HCuy0FDumoXeeRFR8tfp
+	vIPu+/oEd5yG0PfvxwnNJ1fUzGXr5uqLyHkNRF/nIR4MF8MVZiFAcmar38T2P0M0
+	bsj19saZY7Ec45R+zihyJ5ITvh2c6gx0lsuiWc59P0I02tYqAubQ==
+Received: from smtp-eu.ser.proofpoint.com (pmta-eun.ser.proofpoint.com [13.48.139.244])
+	by mx08-002f0603.pphosted.com (PPS) with ESMTPS id 4f2ufbhwgb-9
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <annielam1509@gmail.com>; Tue, 30 Jun 2026 03:02:01 +0000 (GMT)
+Received: from wpb-msg-delivery-email-shp-priority-1-34-5-65754b8dff-4k89c
+ ([18.163.19.38])
+	by cmsmtp with ESMTPSA
+	id eK0cwWcEfshlNeOjYw5RJ7; Tue, 30 Jun 2026 03:02:01 +0000
+X-Mailer: SER-3b2d5ad16109b85a2bd7a8748c9f0e1080c4fc729be4b66b02080f3ae63238f5
+X-Cloudmark-MID: eK0cwWcEfshlNeOjYw5RJ7
+Date: Tue, 30 Jun 2026 03:02:00 +0000 (UTC)
+From: PayMe by HSBC <no-reply-payme@notification.hsbc.com.hk>
+To: annielam1509@gmail.com
+Subject: You've paid the business PORCH KITCHEN & COCKTA CALGARY CAN
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-HSBC-Messaging-Content-Id: 3a074ca6-15ed-3d66-9052-bdaca69fe3eb
+x-iccategory: 3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-30_01,2026-06-26_01,2025-10-01_01
+
+<!DOCTYPE HTML>
+<html>
+   <head>
+      <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DUTF=
+-8">
+      <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scal=
+e=3D1.0">
+      <meta name=3D"format-detection" content=3D"telephone=3Dno">
+      <style type=3D"text/css">
+        *{font-family: Arial, SimHei, sans-serif;}
+body {
+  margin: 0;
+  padding: 0;
+}
+.header_container, .footer_container {font-size:10px;}
+.content_container{font-size:12px;}
+    li{margin:0; padding:0; }
+    ul, ol{ margin:0;}
+    table, td{border-collapse: collapse; }
+
+.wrapper, .wrapper p, .wrapper90, .wrapper90 p{font-family:Arial, SimHei; c=
+olor:#000000; line-height:150%; margin:0;}
+
+        .wrapper, .wrapper90{width:650px !important;  margin:0 auto;  -ms-t=
+ext-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;}
+
+
+.wrapper p, .wrapper90{ color: inherit;  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;}
+
+.col-3-l {float: left; width: 30%; margin-right:20px;}
+.col-3-m { float: left; width: 30%; }
+.col-3-r { float: right; width: 30%; }
+.col-2-l { float: left; width: 48%; }=20
+.col-2-r { float: right; width: 48%; }
+
+.col-60 { float: left; width: 60%; }=20
+.col-40 { float: left; width: 40%; }=20
+
+.mb_display {display:none;}
+
+.col-85 { float: left; width: 85% }=20
+.col-15 { float: left; width: 15% }=20
+=09.mb_display {display:none;}
+
+@media screen and (max-width: 650px) {
+.wrapper{width:100% !important; width:100%}
+.col-3-l, .col-3-m, .col-3-r, .col-2-l, .col-2-r{
+=09float: none;
+=09width: 100%;
+=09margin:0 0 20px 0;
+}
+.col-60, .col-40, .col-85, .col-15{
+=09float: none;
+=09width: 100%;
+=09margin:0 0 20px 0;
+}
+.mb-center {text-align:-webkit-center!important; text-align:center!importan=
+t; }
+.mb_display {display:inline;}
+   }
+
+
+    @media screen and (max-width: 720px) {
+.wrapper90{width:90% !important; }
+
+    }
+</style>
+   </head>
+   <body>
+      <table width=3D"100%" cellpadding=3D"0" cellspacing=3D"0" border=3D"0=
+">
+         <tr>
+            <td align=3D"center">
+               <div class=3D"par1 parsys">
+                  <div class=3D"xslblock section">
+                     <div id=3D"content" class=3D"content" style=3D"min-hei=
+ght: 100px;">
+                        <div style=3D" display: none; font-size: 1px; line-=
+height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;=
+ "> Transaction </div>
+                        <div class=3D"wrapper">
+                           <table style=3D"max-width: 680px; background-col=
+or: #f8f8f8" bgcolor=3D"#f8f8f8">
+                              <tr>
+                                 <td style=3D"margin: 0 auto; padding: 20px=
+">
+                                    <table role=3D"presentation" cellspacin=
+g=3D"0" cellpadding=3D"0" border=3D"0" width=3D"640" bgcolor=3D"#ffffff" st=
+yle=3D" margin: auto; width: 100%; max-width: 640px; height: auto; border-r=
+adius: 12px; -webkit-border-radius: 12px; -moz-border-radius: 12px; -webkit=
+-box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15); -mox-box-shadow: 0 2px 8px 0 =
+rgba(0, 0, 0, 0.15); box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15); backgroun=
+d-color: #ffffff; " class=3D"upper-container-mask">
+                                       <tr style=3D"width: 100%; max-width:=
+ 600px; height: 80px" class=3D"header-outer-redesign">
+                                          <td style=3D" text-align: center;=
+ width: 100%; max-width: 600px; height: auto; border-radius: 12px 12px 0px =
+0px; background-color: #db0011; margin: auto; " class=3D"header-inner-red-b=
+g"><img src=3D"https://assets.paymebiz.hsbc.com.hk/public-web-content/publi=
+c-web-content/email/onboarding/images/payMe_only_LogoH.png" alt=3D"PayMe fr=
+om HSBC Logo" width=3D"126" style=3D" width: 126px; height: auto; margin: 0=
+ auto; vertical-align: middle; " class=3D"header-white-log"></td>
+                                       </tr>
+                                       <tr>
+                                          <td>
+                                             <table role=3D"presentation" c=
+ellspacing=3D"0" cellpadding=3D"0" border=3D"0" width=3D"100%">
+                                                <tr>
+                                                   <td align=3D"center" sty=
+le=3D" text-align: center; font-size: 16px; font-weight: bolder; line-heigh=
+t: 24px; padding: 24px 16px; color: #191313; "> Transaction </td>
+                                                </tr>
+                                                <tr>
+                                                   <td><table style=3D"marg=
+in:0;padding:0;border-spacing:0;overflow:hidden;" cellspacing=3D"0" cellpad=
+ding=3D"0" border=3D"0" width=3D"100%"><tbody style=3D"margin:0;padding:0;"=
+><tr style=3D"font-size:100%;margin:0;padding:0;"><td style=3D"text-align:c=
+enter;padding-top:24px;padding-bottom:8px;"><img src=3D"https://assets.paym=
+ebiz.hsbc.com.hk/public-web-content/public-web-content/cup/onboarding/image=
+/icCCLeeunionPay.png" height=3D"80" width=3D"80" alt=3D"union pay logo"></t=
+d></tr></tbody></table></td>
+                                                </tr>
+                                             </table>
+                                          </td>
+                                       </tr>
+                                       <tr>
+                                          <td style=3D"padding: 0 20px 20px=
+ 20px">
+                                             <table role=3D"presentation" c=
+ellspacing=3D"0" cellpadding=3D"0" border=3D"0" width=3D"100%">
+                                                <tr>
+                                                   <td style=3D"font-size: =
+14px; line-height: 26px; color: #191313"></td>
+                                                </tr>
+                                                <tr>
+                                                   <td style=3D"font-size: =
+14px; line-height: 26px; color: #191313"></td>
+                                                </tr>
+                                                <tr>
+                                                   <td style=3D"font-size: =
+14px; line-height: 26px; color: #191313"><table style=3D"margin:0;padding:0=
+;border-spacing:0;overflow:hidden;" cellspacing=3D"0" cellpadding=3D"0" bor=
+der=3D"0" width=3D"100%"><tbody style=3D"margin:0;padding:0;"><tr style=3D"=
+font-size:100%;margin:0;padding:0;"><td style=3D"text-align:center;font-siz=
+e:16px;margin:0;padding-bottom:24px;font-weight:normal;line-height:24px;">Y=
+ou paid the business <span style=3D"font-weight:bold">PORCH KITCHEN &amp; C=
+OCKTA CALGARY CAN</span> via PayMe</td></tr><tr style=3D"font-size:100%;mar=
+gin:0;padding:0;"><td style=3D"text-align:center;color:#DB0011;margin:0;pad=
+ding-bottom:8px;"><span style=3D"margin:0 auto;font-size:24px;font-weight:b=
+old;line-height:32px;">- HKD 1044.57</span><br><span style=3D"font-size:14p=
+x;line-height:21px">(- CAD 186.48)</span></td></tr><tr style=3D"font-size:1=
+00%;margin:0;padding:0;"><td style=3D"text-align:center;font-size:14px;marg=
+in:0;padding-bottom:4px;font-weight:normal;line-height:24px;">Transaction I=
+D</td></tr><tr style=3D"font-size:100%;margin:0;padding:0;"><td style=3D"te=
+xt-align:center;font-size:14px;margin:0;padding-bottom:24px;">U195003442026=
+0630110159628132</td></tr><tr style=3D"font-size:100%;margin:0;padding:0;">=
+ <td><table style=3D"margin:0;padding:0;border-spacing:0;overflow:hidden;" =
+cellspacing=3D"0" cellpadding=3D"0" border=3D"0" width=3D"100%"><tbody styl=
+e=3D"margin:0;padding:0;"><tr style=3D"font-size:100%;margin:0;padding:0;">=
+<td style=3D"text-align:left;font-size:14px;margin:0;padding:16px 0;font-we=
+ight:normal;line-height:21px;"><span style=3D"color:#767676;">Transaction f=
+ee</span></td><td style=3D"text-align:right;font-size:14px;margin:0;padding=
+:16px 0;color:#191313;font-weight:normal;line-height:21px;">HKD 10.34</td><=
+/tr><tr style=3D"font-size:100%;margin:0;padding:0;"><td style=3D"text-alig=
+n:left;font-size:14px;margin:0;padding:16px 0;font-weight:normal;line-heigh=
+t:21px;"><span style=3D"color:#767676;">Exchange rate</span></td><td style=
+=3D"text-align:right;font-size:14px;margin:0;padding:16px 0;color:#191313;f=
+ont-weight:normal;line-height:21px;">5.546056</td></tr><tr style=3D"font-si=
+ze:100%;margin:0;padding:0;"><td style=3D"text-align:left;font-size:14px;ma=
+rgin:0;padding:16px 0;font-weight:normal;line-height:21px;"><span style=3D"=
+color:#767676;">Date and time</span></td><td style=3D"text-align:right;font=
+-size:14px;margin:0;padding:16px 0;color:#191313;font-weight:normal;line-he=
+ight:21px;">11:01 30/06/2026</td></tr><tr style=3D"font-size:100%;margin:0;=
+padding:0;"><td style=3D"text-align:left;font-size:14px;margin:0;padding:16=
+px 0;font-weight:normal;line-height:21px;"><span style=3D"color:#767676;">P=
+ayment status</span></td><td style=3D"text-align:right;font-size:14px;margi=
+n:0;padding:16px 0;color:#191313;font-weight:normal;line-height:21px;">APPR=
+OVED</td></tr><tr style=3D"font-size:100%;margin:0;padding:0;"><td style=3D=
+"height:24px"></td></tr></tbody></table></td></tr></tbody></table></td>
+                                                </tr>
+                                                <tr>
+                                                   <td style=3D"font-size: =
+14px; line-height: 26px; color: #191313">If you didn't make this payment, p=
+lease contact our Customer Service team for support  by going to Me &gt; Se=
+ttings &gt; Chat with us in the app.<br><br> Thank you, <br> Team PayMe </t=
+d>
+                                                </tr>
+                                             </table>
+                                          </td>
+                                       </tr>
+                                    </table>
+                                    <table role=3D"presentation" cellspacin=
+g=3D"0" cellpadding=3D"0" border=3D"0" width=3D"640" style=3D"margin: auto;=
+ width: 100%; max-width: 640px; height: auto" class=3D"footer-container-mas=
+k">
+                                       <tr>
+                                          <td aria-hidden=3D"true" height=
+=3D"40" style=3D"font-size: 0px; line-height: 0px"></td>
+                                       </tr>
+                                       <tr>
+                                          <td style=3D"padding: 0 10px 20px=
+ 10px">
+                                             <table role=3D"presentation" b=
+order=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%">
+                                                <tr>
+                                                   <td valign=3D"top" width=
+=3D"50%">
+                                                      <table role=3D"presen=
+tation" cellspacing=3D"0" cellpadding=3D"0" border=3D"0" width=3D"100%">
+                                                         <tr>
+                                                            <td style=3D"te=
+xt-align: center; padding: 0 10px">
+                                                               <p style=3D"=
+ height: 16px; font-size: 12px; font-weight: bold; line-height: 1.33; text-=
+align: center; color: #111111; "><a style=3D"display:block;border-style:non=
+e;text-decoration:none;color:#191313" href=3D"https://payme.hsbc.com.hk/en/=
+help?category=3Dcontact-us">Contact us</a></p>
+                                                            </td>
+                                                         </tr>
+                                                      </table>
+                                                   </td>
+                                                   <td valign=3D"top" width=
+=3D"50%">
+                                                      <table role=3D"presen=
+tation" cellspacing=3D"0" cellpadding=3D"0" border=3D"0" width=3D"100%">
+                                                         <tr>
+                                                            <p style=3D" he=
+ight: 16px; font-size: 12px; font-weight: bold; line-height: 1.33; text-ali=
+gn: center; color: #111111; "><a style=3D"display:block;border-style:none;t=
+ext-decoration:none;color:#191313" href=3D"https://payme.hsbc.com.hk/en/leg=
+al/terms-and-conditions">Terms &amp; Conditions</a></p>
+                                                         </tr>
+                                                      </table>
+                                                   </td>
+                                                </tr>
+                                             </table>
+                                          </td>
+                                       </tr>
+                                       <tr>
+                                          <td aria-hidden=3D"true" height=
+=3D"20" style=3D"font-size: 0px; line-height: 0px">
+                                             <hr style=3D"border: solid 1px=
+ #ebebeb">
+                                          </td>
+                                       </tr>
+                                       <tr>
+                                          <td>
+                                             <table role=3D"presentation" c=
+ellspacing=3D"0" cellpadding=3D"0" border=3D"0" width=3D"100%" style=3D" he=
+ight: auto; font-size: 10px; font-weight: normal; line-height: 1.6; color: =
+#666666; " class=3D"footer-copyright">
+                                                <tr>
+                                                   <td>
+                                                      <p style=3D"margin: 0=
+"><img src=3D"https://assets.paymebiz.hsbc.com.hk/public-web-content/public=
+-web-content/email/onboarding/images/new_hsbc_footer_logo.png" alt=3D"By HS=
+BC Logo Black" width=3D"84" style=3D"width: 84px; height: auto"></p>
+                                                      <p style=3D"margin: 0=
+ 0 20px 0"> =C2=A9 Copyright. The Hongkong and Shanghai Banking Corporation=
+ Limited 2026. All rights reserved. </p>
+                                                      <p style=3D"margin: 0=
+ 0 20px 0"> SVF license number: SVFB002 </p>
+                                                      <p style=3D"margin: 0=
+ 0 20px 0"> Please do not provide any of your details including your accoun=
+t or credit card number,
+                                                         or disclose any co=
+nfidential information such as telephone number, other email address,
+                                                         etc. in your email=
+. </p>
+                                                   </td>
+                                                </tr>
+                                             </table>
+                                          </td>
+                                       </tr>
+                                    </table>
+                                 </td>
+                              </tr>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </td>
+         </tr>
+      </table>
+   </body>
+</html>

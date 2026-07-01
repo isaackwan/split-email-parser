@@ -94,13 +94,13 @@ const PAYME_PATTERNS = [
     type: PAYME_TRANSACTION_TYPES.PRE_AUTH,
     status: 'Pending',
     regex:
-      /You have a pending payment to the business\s+(.+?)\s+via PayMe\s+-\s+([A-Z]{3})\s+([\d,.]+)(?:\s+\(\s+([A-Z]{3})\s+([\d,.]+)\s+\))?.*?Date and time\s+(\d{2}):(\d{2})\s+(\d{2})\/(\d{2})\/(\d{4})\s+Payment status\s+Pending/s,
+      /You have a pending payment to the business\s+(.+?)\s+via PayMe\s*-?\s*([A-Z]{3})\s+([\d,.]+)(?:\s+\(\s*-?\s*([A-Z]{3})\s+([\d,.]+)\s*\))?.*?Date and time\s*(\d{2}):(\d{2})\s*(\d{2})\/(\d{2})\/(\d{4})\s*Payment status\s*Pending/s,
   },
   {
     type: PAYME_TRANSACTION_TYPES.PURCHASE,
     status: 'SUCCESS',
     regex:
-      /You paid the business\s+(.+?)\s+via PayMe\s+-\s+([A-Z]{3})\s+([\d,.]+)(?:\s+\(\s+([A-Z]{3})\s+([\d,.]+)\s+\))?.*?Date and time\s+(\d{2}):(\d{2})\s+(\d{2})\/(\d{2})\/(\d{4})\s+Payment status\s+SUCCESS/s,
+      /You(?:'ve)? paid the business\s+(.+?)\s+via PayMe\s*-?\s*([A-Z]{3})\s+([\d,.]+)(?:\s+\(\s*-?\s*([A-Z]{3})\s+([\d,.]+)\s*\))?.*?Date and time\s*(\d{2}):(\d{2})\s*(\d{2})\/(\d{2})\/(\d{4})\s*Payment status\s*(?:SUCCESS|APPROVED)/s,
   },
 ];
 
@@ -356,9 +356,9 @@ function parseWiseTransactionText(text, { subject, date, receivedDate } = {}) {
 export async function parseEmail(rawEmail) {
   const mail = await simpleParser(rawEmail);
 
-  // Prefer the HTML part (always present in these emails); fall back to
-  // the plain-text part if somehow the HTML is absent.
-  const source = mail.html || mail.text || '';
+  // Prefer text because PayMe's HTML-to-text output preserves the transaction
+  // currency line more reliably than stripping the HTML ourselves.
+  const source = mail.text || mail.html || '';
   if (!source) {
     throw new EmailParseError('Email has no readable text or HTML body');
   }

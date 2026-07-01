@@ -275,6 +275,23 @@ describe('parseEmail (integration)', () => {
     assert.equal(result.date.toISOString(), '2026-06-27T04:25:00.000Z');
   });
 
+  it('parses the PayMe PURCHASE fixture with CAD as the raw transaction currency', async () => {
+    const raw = fixture('payme-purchase2.eml');
+    const result = await parseEmail(raw);
+
+    assert.equal(result.channel, CHANNELS.PAYME);
+    assert.equal(result.cardLast4, null);
+    assert.equal(result.type, PAYME_TRANSACTION_TYPES.PURCHASE);
+    assert.equal(result.amount, 186.48);
+    assert.equal(result.currency, 'CAD');
+    assert.equal(result.originalCurrency, 'CAD');
+    assert.equal(result.originalAmount, 186.48);
+    assert.equal(result.settlementCurrency, 'HKD');
+    assert.equal(result.settlementAmount, 1044.57);
+    assert.equal(result.merchantRaw, 'PORCH KITCHEN & COCKTA CALGARY CAN');
+    assert.equal(result.date.toISOString(), '2026-06-30T03:01:00.000Z');
+  });
+
   it('parses the Wise PURCHASE fixture end-to-end', async () => {
     const raw = fixture('wise-purchase.eml');
     const result = await parseEmail(raw);
